@@ -12,373 +12,302 @@ import warnings
 warnings.filterwarnings("ignore")
 
 st.set_page_config(
-    page_title="Beijing AQI Analytics",
-    page_icon="🌫️",
+    page_title="EcoMonitor — Air Quality Intelligence",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# ── GLOBAL CSS ────────────────────────────────────────────────
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,700;0,800;1,700&display=swap');
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<style>
 :root {
-    --bg:      #f8f7f4;
-    --bg2:     #ffffff;
-    --bg3:     #f1f0ec;
-    --border:  #e5e3dc;
-    --gold:    #c9870a;
-    --gold2:   #f5a623;
-    --goldlt:  #fef3dc;
-    --text:    #1a1a18;
-    --muted:   #78756e;
-    --green:   #1a7a4a;
-    --greenlt: #e8f5ee;
-    --red:     #c0392b;
-    --redlt:   #fdf0ee;
-    --blue:    #2563eb;
-    --bluelt:  #eff6ff;
-    --purple:  #7c3aed;
+    --bg-main:    #111827;
+    --bg-card:    #1f2937;
+    --bg-card2:   #1a2332;
+    --bg-sidebar: #0f172a;
+    --border:     rgba(255,255,255,0.07);
+    --border2:    rgba(255,255,255,0.12);
+    --teal:       #00d4aa;
+    --teal2:      #00b894;
+    --teal-glow:  rgba(0,212,170,0.15);
+    --teal-dim:   rgba(0,212,170,0.08);
+    --text:       #f1f5f9;
+    --muted:      #94a3b8;
+    --muted2:     #64748b;
+    --red:        #ef4444;
+    --red-dim:    rgba(239,68,68,0.12);
+    --amber:      #f59e0b;
+    --amber-dim:  rgba(245,158,11,0.12);
+    --blue:       #3b82f6;
+    --blue-dim:   rgba(59,130,246,0.12);
+    --green:      #10b981;
+    --green-dim:  rgba(16,185,129,0.12);
+    --purple:     #8b5cf6;
+    --purple-dim: rgba(139,92,246,0.12);
 }
 
 html, body, .stApp, [data-testid="stAppViewContainer"],
 [data-testid="stMain"], [data-testid="stMainBlockContainer"],
 .main, .block-container, section.main {
-    background-color: var(--bg) !important;
+    background-color: var(--bg-main) !important;
     color: var(--text) !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-family: 'Inter', sans-serif !important;
 }
-.block-container { padding: 0 32px 48px 32px !important; max-width: 100% !important; }
-
-/* ── BACKGROUND ANIMATION ── */
-.bg-anim {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    pointer-events: none; z-index: 0; overflow: hidden;
-}
-.blob {
-    position: absolute; border-radius: 50%;
-    filter: blur(90px); opacity: 0.28;
-}
-.blob1 {
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, #fde68a, #fbbf24);
-    top: -150px; right: -100px;
-    animation: blobMove1 20s ease-in-out infinite;
-}
-.blob2 {
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, #bbf7d0, #6ee7b7);
-    bottom: -80px; left: -80px;
-    animation: blobMove2 25s ease-in-out infinite;
-}
-.blob3 {
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, #bfdbfe, #93c5fd);
-    top: 40%; left: 40%;
-    animation: blobMove3 18s ease-in-out infinite;
-}
-@keyframes blobMove1 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(-40px,60px) scale(1.06); }
-    66%      { transform: translate(30px,-40px) scale(0.95); }
-}
-@keyframes blobMove2 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    50%      { transform: translate(50px,-40px) scale(1.08); }
-}
-@keyframes blobMove3 {
-    0%,100% { transform: translate(0,0); }
-    40%      { transform: translate(-30px,50px); }
-}
+.block-container { padding: 0 28px 48px 28px !important; max-width: 100% !important; }
 
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"],
 [data-testid="stSidebar"] > div,
 [data-testid="stSidebarContent"] {
-    background-color: #ffffff !important;
-    border-right: 1px solid var(--border) !important;
+    background-color: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border2) !important;
 }
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] span,
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] div { color: var(--muted) !important; }
-[data-testid="stSidebar"] hr { border-color: var(--border) !important; }
+[data-testid="stSidebar"] hr { border-color: var(--border2) !important; }
+[data-testid="stSidebar"] .stRadio > div { gap: 2px !important; }
 [data-testid="stSidebar"] .stRadio label {
-    font-size: 0.88rem !important;
-    color: var(--text) !important;
-    padding: 7px 10px !important;
-    border-radius: 7px !important;
+    font-size: 0.84rem !important; color: var(--muted) !important;
+    padding: 9px 12px !important; border-radius: 8px !important;
+    width: 100% !important; transition: all 0.18s !important;
+    border: 1px solid transparent !important;
 }
 [data-testid="stSidebar"] .stRadio label:hover {
-    background: var(--bg3) !important;
-    color: var(--gold) !important;
+    background: var(--teal-dim) !important; color: var(--teal) !important;
+    border-color: rgba(0,212,170,0.15) !important;
 }
 [data-testid="stSidebar"] .stSuccess {
-    background: var(--greenlt) !important;
-    color: var(--green) !important;
-    border: 1px solid #a7f3d0 !important;
+    background: var(--green-dim) !important; color: var(--green) !important;
+    border: 1px solid rgba(16,185,129,0.2) !important; border-radius: 8px !important;
 }
 [data-testid="stSidebar"] .stInfo {
-    background: var(--bluelt) !important;
-    color: var(--blue) !important;
+    background: var(--blue-dim) !important; color: #93c5fd !important;
+    border: 1px solid rgba(59,130,246,0.2) !important; border-radius: 8px !important;
 }
 
 /* ── TOPBAR ── */
-.topbar {
-    background: rgba(248,247,244,0.92);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 32px;
+.eco-topbar {
+    background: rgba(15,23,42,0.95); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border2); padding: 13px 28px;
     display: flex; align-items: center; justify-content: space-between;
-    margin: 0 -32px 28px -32px;
-    position: sticky; top: 0; z-index: 100;
+    margin: 0 -28px 28px -28px; position: sticky; top: 0; z-index: 100;
 }
-.app-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 1.15rem; font-weight: 800;
-    color: var(--text) !important; letter-spacing: -0.3px;
+.eco-brand { font-size: 1.05rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 9px; }
+.eco-brand .brand-accent { color: var(--teal); }
+.eco-topbar-right { display: flex; align-items: center; gap: 14px; font-size: 0.78rem; }
+.eco-status {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--green-dim); border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 20px; padding: 4px 12px; font-size: 0.68rem; font-weight: 700; color: #6ee7b7 !important;
 }
-.app-title span { color: var(--gold); }
-.topbar-right { font-size: 0.78rem; color: var(--muted); display:flex; align-items:center; gap:14px; }
-.status-pill {
-    background: var(--greenlt); color: var(--green) !important;
-    border: 1px solid #a7f3d0; border-radius: 20px;
-    padding: 3px 10px; font-size: 0.7rem; font-weight: 600;
-    display: flex; align-items: center; gap: 5px;
+.eco-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse-dot 2s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.eco-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 6px 14px; font-size: 0.78rem; color: var(--muted2);
 }
-.status-pill::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); }
+.eco-icon-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--bg-card); border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.85rem; cursor: pointer;
+}
+.eco-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal2), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700; color: #0a1628;
+}
 
 /* ── PAGE HEADERS ── */
-.pg-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-.pg-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text); margin-bottom: 4px; line-height: 1.15; }
-.pg-sub { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 22px; }
-.divider { height: 1px; background: var(--border); margin: 20px 0 24px 0; }
+.pg-eyebrow {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 7px;
+}
+.pg-title { font-size: 1.85rem; font-weight: 700; color: var(--text); margin-bottom: 5px; letter-spacing: -0.5px; }
+.pg-sub { font-size: 0.875rem; color: var(--muted); line-height: 1.7; margin-bottom: 24px; max-width: 680px; }
+.eco-divider { height: 1px; background: var(--border); margin: 20px 0 24px 0; }
 
 /* ── HERO ── */
-.hero {
-    background: linear-gradient(135deg, #1a1a18 0%, #2a2720 60%, #1e1c18 100%);
-    border-radius: 20px; padding: 52px 56px;
-    margin-bottom: 24px; position: relative; overflow: hidden;
+.eco-hero {
+    background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
+    border: 1px solid var(--border2); border-radius: 18px;
+    padding: 50px 54px; margin-bottom: 24px; position: relative; overflow: hidden;
 }
-.hero::after {
-    content: '';
-    position: absolute; right: -40px; top: -40px;
-    width: 360px; height: 360px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(245,166,35,0.18) 0%, transparent 65%);
-    pointer-events: none;
+.eco-hero::before {
+    content:''; position:absolute; right:-80px; top:-80px; width:420px; height:420px;
+    border-radius:50%; background:radial-gradient(circle, rgba(0,212,170,0.12) 0%, transparent 65%);
 }
-.hero-eyebrow { font-size: 0.62rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold2); margin-bottom: 18px; opacity: 0.9; }
-.hero-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 3.2rem; font-weight: 800; color: #f5f0e8;
-    line-height: 1.08; margin-bottom: 18px; letter-spacing: -1px;
+.eco-hero::after {
+    content:''; position:absolute; left:-60px; bottom:-60px; width:280px; height:280px;
+    border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 65%);
 }
-.hero-title span { color: var(--gold2); }
-.hero-desc { font-size: 0.93rem; color: rgba(245,240,232,0.55); line-height: 1.8; max-width: 500px; margin-bottom: 30px; }
-.hero-btn { display: inline-block; border: 1px solid var(--gold2); color: var(--gold2) !important; padding: 11px 26px; border-radius: 8px; font-size: 0.86rem; font-weight: 600; cursor: pointer; margin-right: 10px; }
-.hero-btn-2 { display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: rgba(245,240,232,0.7) !important; padding: 11px 26px; border-radius: 8px; font-size: 0.86rem; font-weight: 600; cursor: pointer; }
-
-/* ── CARDS ── */
-.card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 22px 24px;
-    margin-bottom: 16px;
-    position: relative;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
-.card-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.card-sub { font-size: 0.75rem; color: var(--muted); margin-bottom: 14px; }
+.eco-hero-eyebrow { font-size:0.62rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--teal); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+.eco-hero-title { font-size:3rem; font-weight:800; color:var(--text); line-height:1.1; margin-bottom:18px; letter-spacing:-1.5px; }
+.eco-hero-title .ht-accent { color: var(--teal); }
+.eco-hero-desc { font-size:0.92rem; color:var(--muted); line-height:1.8; max-width:520px; margin-bottom:32px; }
+.eco-btn { display:inline-flex; align-items:center; gap:8px; background:var(--teal); color:#0a1628 !important; padding:11px 24px; border-radius:9px; font-size:0.86rem; font-weight:700; margin-right:10px; }
+.eco-btn-ghost { display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid var(--border2); color:var(--muted) !important; padding:11px 24px; border-radius:9px; font-size:0.86rem; font-weight:600; }
 
 /* ── STAT CARDS ── */
-.stat-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px 22px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-.stat-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
-.stat-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.stat-value { font-family: 'DM Mono', monospace; font-size: 1.9rem; font-weight: 500; color: var(--text); line-height: 1; margin-bottom: 8px; }
-.stat-tag { display: inline-block; font-size: 0.58rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
-.tag-gold   { background: var(--goldlt);  color: var(--gold) !important; }
-.tag-green  { background: var(--greenlt); color: var(--green) !important; }
-.tag-red    { background: var(--redlt);   color: var(--red) !important; }
-.stat-bar { height: 2px; background: var(--bg3); border-radius: 2px; margin-top: 12px; overflow: hidden; }
-.stat-fill { height: 2px; border-radius: 2px; }
+.eco-stat { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; position:relative; overflow:hidden; transition:border-color 0.2s, transform 0.2s; }
+.eco-stat:hover { border-color:var(--border2); transform:translateY(-2px); }
+.eco-stat-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.eco-stat-label { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); }
+.eco-badge { display:inline-flex; align-items:center; gap:4px; font-size:0.58rem; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; padding:3px 8px; border-radius:5px; }
+.eco-badge-teal   { background:var(--teal-dim);   color:var(--teal)  !important; border:1px solid rgba(0,212,170,0.2); }
+.eco-badge-green  { background:var(--green-dim);   color:#6ee7b7     !important; border:1px solid rgba(16,185,129,0.2); }
+.eco-badge-red    { background:var(--red-dim);     color:#fca5a5     !important; border:1px solid rgba(239,68,68,0.2); }
+.eco-badge-amber  { background:var(--amber-dim);   color:#fcd34d     !important; border:1px solid rgba(245,158,11,0.2); }
+.eco-badge-blue   { background:var(--blue-dim);    color:#93c5fd     !important; border:1px solid rgba(59,130,246,0.2); }
+.eco-badge-purple { background:var(--purple-dim);  color:#c4b5fd     !important; border:1px solid rgba(139,92,246,0.2); }
+.eco-stat-value { font-family:'DM Mono',monospace; font-size:1.9rem; font-weight:500; color:var(--text); line-height:1; margin-bottom:12px; }
+.eco-stat-bar  { height:2px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.eco-stat-fill { height:2px; border-radius:2px; }
+.eco-stat-icon { position:absolute; right:18px; bottom:18px; font-size:1.8rem; opacity:0.06; }
+
+/* ── CARDS ── */
+.eco-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:14px; transition:border-color 0.2s; }
+.eco-card:hover { border-color:var(--border2); }
+.eco-card-title { font-size:0.87rem; font-weight:600; color:var(--text); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.eco-card-title i { color:var(--teal); }
+.eco-card-sub { font-size:0.74rem; color:var(--muted2); margin-bottom:12px; }
 
 /* ── METRIC CARDS ── */
-.metric-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px; padding: 24px 26px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.metric-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-.metric-value { font-family: 'DM Mono', monospace; font-size: 2.8rem; font-weight: 500; color: var(--gold); line-height: 1; margin-bottom: 8px; }
-.metric-note   { font-size: 0.78rem; color: var(--muted); }
-.metric-note-g { color: var(--green) !important; font-weight: 600; }
-.metric-note-r { color: var(--red) !important; font-weight: 600; }
+.eco-metric { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:24px 26px; }
+.eco-metric-label { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); margin-bottom:12px; }
+.eco-metric-value { font-family:'DM Mono',monospace; font-size:2.6rem; font-weight:500; color:var(--teal); line-height:1; margin-bottom:8px; }
+.eco-metric-note   { font-size:0.78rem; color:var(--muted); }
+.eco-metric-note-g { color:var(--green)  !important; font-weight:600; }
+.eco-metric-note-r { color:var(--red)    !important; font-weight:600; }
 
 /* ── INSIGHT BOX ── */
-.insight {
-    background: var(--goldlt);
-    border: 1px solid #f5d07a;
-    border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
-}
-.insight-title { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
-.insight-body { font-size: 0.8rem; color: #78600a; line-height: 1.75; }
+.eco-insight { background:rgba(0,212,170,0.05); border:1px solid rgba(0,212,170,0.2); border-left:3px solid var(--teal); border-radius:10px; padding:16px 18px; margin-bottom:14px; }
+.eco-insight-title { font-size:0.78rem; font-weight:700; color:var(--teal); margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+.eco-insight-body { font-size:0.8rem; color:var(--muted); line-height:1.75; }
 
-/* ── FEATURE BAR ── */
-.feat-row { margin-bottom: 14px; }
-.feat-top { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 6px; }
-.feat-name { color: var(--text); font-weight: 500; }
-.feat-pct { color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 500; }
-.feat-bg { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
-.feat-fill { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+/* ── FEATURE IMPORTANCE ── */
+.eco-feat-row { margin-bottom:12px; }
+.eco-feat-top { display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:5px; }
+.eco-feat-name { color:var(--muted); font-weight:500; }
+.eco-feat-pct  { color:var(--teal); font-family:'DM Mono',monospace; }
+.eco-feat-bg   { height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.eco-feat-fill { height:4px; border-radius:2px; background:linear-gradient(90deg, var(--teal2), var(--teal)); }
 
 /* ── PREDICTOR ── */
-.pred-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--gold);
-    border-radius: 14px; padding: 28px; text-align: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-.pred-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-.pred-value { font-family: 'DM Mono', monospace; font-size: 5rem; font-weight: 500; color: var(--gold); line-height: 1; margin-bottom: 6px; }
-.pred-unit { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
-.pred-badge { display: inline-block; padding: 6px 20px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; margin-bottom: 18px; }
-.who-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
-.who-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
-.who-bar-fill { height: 4px; border-radius: 2px; }
-.conf-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
-.conf-lbl { color: var(--muted); }
-.conf-val { color: var(--text); font-family: 'DM Mono', monospace; font-weight: 500; }
+.eco-pred { background:var(--bg-card); border:1px solid var(--border); border-top:2px solid var(--teal); border-radius:14px; padding:28px; text-align:center; }
+.eco-pred-label { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); margin-bottom:12px; }
+.eco-pred-unit { font-size:0.85rem; color:var(--muted); margin-bottom:18px; }
+.eco-pred-badge { display:inline-block; padding:6px 20px; border-radius:6px; font-weight:700; font-size:0.82rem; margin-bottom:20px; }
+.eco-who-label { display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:6px; }
+.eco-who-bar-bg  { height:5px; background:rgba(255,255,255,0.06); border-radius:3px; margin-bottom:14px; overflow:hidden; }
+.eco-who-bar-fill { height:5px; border-radius:3px; }
+.eco-conf-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.82rem; }
+.eco-conf-row:last-child { border-bottom:none; }
+.eco-conf-lbl { color:var(--muted); }
+.eco-conf-val { color:var(--text); font-family:'DM Mono',monospace; font-weight:500; }
 
-/* ── DISTRICT ROW ── */
-.dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.8rem; }
-.dist-name { min-width: 110px; color: var(--text); font-weight: 500; }
-.dist-bar-bg { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; }
-.dist-bar { height: 4px; border-radius: 2px; }
-.dist-val { color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.78rem; min-width: 28px; text-align: right; }
+/* ── DIST BARS ── */
+.eco-dist-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.eco-dist-name { min-width:110px; color:var(--muted); font-weight:500; font-size:0.74rem; }
+.eco-dist-bar-bg { flex:1; height:4px; background:rgba(255,255,255,0.06); border-radius:2px; }
+.eco-dist-bar    { height:4px; border-radius:2px; }
+.eco-dist-val { color:var(--text); font-family:'DM Mono',monospace; font-size:0.75rem; min-width:36px; text-align:right; }
 
 /* ── AQI BADGES ── */
-.aqi-good     { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.aqi-moderate { background: var(--goldlt); color: #92400e; border: 1px solid #fde68a; }
-.aqi-usg      { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
-.aqi-unhlthy  { background: var(--redlt); color: var(--red); border: 1px solid #fca5a5; }
-.aqi-very     { background: #f5f3ff; color: var(--purple); border: 1px solid #ddd6fe; }
-.aqi-haz      { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.aqi-good     { background:rgba(16,185,129,0.12); color:#6ee7b7; border:1px solid rgba(16,185,129,0.25); }
+.aqi-moderate { background:rgba(245,158,11,0.12); color:#fcd34d; border:1px solid rgba(245,158,11,0.25); }
+.aqi-usg      { background:rgba(249,115,22,0.12); color:#fdba74; border:1px solid rgba(249,115,22,0.25); }
+.aqi-unhlthy  { background:var(--red-dim);          color:#fca5a5; border:1px solid rgba(239,68,68,0.25); }
+.aqi-very     { background:var(--purple-dim);        color:#c4b5fd; border:1px solid rgba(139,92,246,0.25); }
+.aqi-haz      { background:rgba(185,28,28,0.15);    color:#fca5a5; border:1px solid rgba(185,28,28,0.3); }
 
 /* ── STREAMLIT OVERRIDES ── */
-[data-testid="metric-container"] {
-    background: var(--bg2) !important; border: 1px solid var(--border) !important;
-    border-radius: 12px !important; padding: 18px !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
-}
-[data-testid="stMetricValue"] { color: var(--gold) !important; font-family: 'DM Mono', monospace !important; font-size: 1.8rem !important; font-weight: 500 !important; }
-[data-testid="stMetricLabel"] { color: var(--muted) !important; font-size: 0.65rem !important; letter-spacing: 2px !important; text-transform: uppercase !important; }
-[data-testid="stMetricDelta"] { color: var(--green) !important; }
+[data-testid="metric-container"] { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:12px !important; padding:18px !important; }
+[data-testid="stMetricValue"]  { color:var(--teal) !important; font-family:'DM Mono',monospace !important; font-size:1.8rem !important; font-weight:500 !important; }
+[data-testid="stMetricLabel"]  { color:var(--muted) !important; font-size:0.65rem !important; letter-spacing:2px !important; text-transform:uppercase !important; }
+[data-testid="stMetricDelta"]  { color:var(--green) !important; }
 
-div[data-testid="stTabs"] [data-baseweb="tab-list"] { background: transparent !important; border-bottom: 1px solid var(--border) !important; }
-div[data-testid="stTabs"] [data-baseweb="tab"] { background: transparent !important; color: var(--muted) !important; font-size: 0.83rem !important; padding: 10px 18px !important; }
-div[data-testid="stTabs"] [aria-selected="true"] { color: var(--gold) !important; border-bottom: 2px solid var(--gold) !important; background: transparent !important; }
+div[data-testid="stTabs"] [data-baseweb="tab-list"] { background:transparent !important; border-bottom:1px solid var(--border2) !important; gap:4px !important; }
+div[data-testid="stTabs"] [data-baseweb="tab"] { background:transparent !important; color:var(--muted2) !important; font-size:0.83rem !important; padding:10px 18px !important; border-radius:8px 8px 0 0 !important; }
+div[data-testid="stTabs"] [aria-selected="true"] { color:var(--teal) !important; border-bottom:2px solid var(--teal) !important; background:var(--teal-dim) !important; }
 
-.stSelectbox > div > div, .stMultiSelect > div > div {
-    background: var(--bg2) !important; border: 1px solid var(--border) !important;
-    color: var(--text) !important; border-radius: 8px !important;
-}
-.stNumberInput > div > div > input, input, textarea {
-    background: var(--bg2) !important; border: 1px solid var(--border) !important;
-    color: var(--text) !important; border-radius: 8px !important;
-}
-.stButton > button {
-    background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-    color: #ffffff !important; font-weight: 700 !important;
-    font-size: 0.9rem !important; border: none !important;
-    border-radius: 8px !important; padding: 12px 20px !important; width: 100% !important;
-    box-shadow: 0 2px 12px rgba(201,135,10,0.25) !important;
-}
-.stButton > button:hover { opacity: 0.9 !important; transform: translateY(-1px) !important; }
-.stFileUploader { background: var(--bg2) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; }
-.stExpander { background: var(--bg2) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; }
+.stSelectbox > div > div, .stMultiSelect > div > div { background:var(--bg-card) !important; border:1px solid var(--border2) !important; color:var(--text) !important; border-radius:8px !important; }
+.stNumberInput > div > div > input, input, textarea { background:var(--bg-card) !important; border:1px solid var(--border2) !important; color:var(--text) !important; border-radius:8px !important; }
+.stButton > button { background:linear-gradient(135deg, var(--teal2), var(--teal)) !important; color:#0a1628 !important; font-weight:700 !important; font-size:0.88rem !important; border:none !important; border-radius:9px !important; padding:12px 20px !important; width:100% !important; box-shadow:0 4px 20px rgba(0,212,170,0.2) !important; transition:opacity 0.2s, transform 0.2s !important; }
+.stButton > button:hover { opacity:0.9 !important; transform:translateY(-1px) !important; }
+.stFileUploader { background:var(--bg-card) !important; border:1px dashed var(--border2) !important; border-radius:10px !important; }
+.stExpander { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:10px !important; }
 
-thead tr th { background: var(--bg3) !important; color: var(--gold) !important; font-size: 0.65rem !important; font-weight: 700 !important; letter-spacing: 1.5px !important; text-transform: uppercase !important; border-bottom: 1px solid var(--border) !important; }
-tbody tr { background: var(--bg2) !important; color: var(--text) !important; font-size: 0.82rem !important; }
-tbody tr:nth-child(even) { background: var(--bg3) !important; }
-tbody tr:hover { background: #f0ede4 !important; }
+thead tr th { background:rgba(255,255,255,0.04) !important; color:var(--teal) !important; font-size:0.65rem !important; font-weight:700 !important; letter-spacing:1.5px !important; text-transform:uppercase !important; border-bottom:1px solid var(--border2) !important; }
+tbody tr { background:var(--bg-card) !important; color:var(--text) !important; font-size:0.82rem !important; }
+tbody tr:nth-child(even) { background:var(--bg-card2) !important; }
+tbody tr:hover { background:rgba(0,212,170,0.04) !important; }
 
-#MainMenu, footer { visibility: hidden !important; }
-header { background: transparent !important; }
-[data-testid="stDecoration"] { display: none !important; }
-.stRadio label { color: var(--text) !important; }
-.stCaption { color: var(--muted) !important; }
-.stSuccess { background: var(--greenlt) !important; border: 1px solid #a7f3d0 !important; border-radius: 8px !important; color: var(--green) !important; }
-.stInfo { background: var(--bluelt) !important; border: 1px solid #bfdbfe !important; border-radius: 8px !important; color: var(--blue) !important; }
-.stWarning { background: var(--goldlt) !important; border: 1px solid #fde68a !important; border-radius: 8px !important; }
+#MainMenu, footer { visibility:hidden !important; }
+header { background:transparent !important; }
+[data-testid="stDecoration"] { display:none !important; }
+.stRadio label { color:var(--muted) !important; }
+.stCaption { color:var(--muted2) !important; }
+.stSuccess { background:var(--green-dim) !important; border:1px solid rgba(16,185,129,0.2) !important; border-radius:8px !important; color:#6ee7b7 !important; }
+.stInfo    { background:var(--blue-dim)  !important; border:1px solid rgba(59,130,246,0.2)   !important; border-radius:8px !important; color:#93c5fd !important; }
+.stWarning { background:var(--amber-dim) !important; border:1px solid rgba(245,158,11,0.2)   !important; border-radius:8px !important; color:var(--amber) !important; }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg-main); }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
+.stSlider > div > div > div { background:var(--teal) !important; }
 </style>
-
-<div class="bg-anim">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="blob blob3"></div>
-</div>
 """, unsafe_allow_html=True)
 
 
 # ── HELPERS ──────────────────────────────────────────────────
 def classify_aqi(pm25):
-    if pm25 <= 35:    return 'Good',          'aqi-good',     '#166534'
-    elif pm25 <= 75:  return 'Moderate',       'aqi-moderate', '#92400e'
-    elif pm25 <= 115: return 'Unhealthy (SG)', 'aqi-usg',      '#9a3412'
-    elif pm25 <= 150: return 'Unhealthy',      'aqi-unhlthy',  '#c0392b'
-    elif pm25 <= 250: return 'Very Unhealthy', 'aqi-very',     '#7c3aed'
-    else:             return 'Hazardous',      'aqi-haz',      '#991b1b'
+    if pm25 <= 35:    return 'Good',           'aqi-good',    '#6ee7b7'
+    elif pm25 <= 75:  return 'Moderate',        'aqi-moderate','#fcd34d'
+    elif pm25 <= 115: return 'Unhealthy (SG)',  'aqi-usg',     '#fdba74'
+    elif pm25 <= 150: return 'Unhealthy',       'aqi-unhlthy', '#fca5a5'
+    elif pm25 <= 250: return 'Very Unhealthy',  'aqi-very',    '#c4b5fd'
+    else:             return 'Hazardous',       'aqi-haz',     '#fca5a5'
 
 AQI_COL = {
-    'Good':'#4ade80','Moderate':'#f5a623',
-    'Unhealthy for Sensitive Groups':'#fb923c',
-    'Unhealthy':'#f87171','Very Unhealthy':'#a78bfa','Hazardous':'#dc2626'
+    'Good':'#10b981','Moderate':'#f59e0b',
+    'Unhealthy for Sensitive Groups':'#f97316',
+    'Unhealthy':'#ef4444','Very Unhealthy':'#8b5cf6','Hazardous':'#dc2626'
 }
-GOLD='#c9870a'; GOLD2='#f5a623'; BG='#f8f7f4'; GRID='#e5e3dc'; TEXT='#1a1a18'
+TEAL='#00d4aa'; TEAL2='#00b894'
+MUTED='#94a3b8'; TEXT='#f1f5f9'
+RED='#ef4444'; AMBER='#f59e0b'; GREEN='#10b981'; BLUE='#3b82f6'
 
-# ── FIX: PLOT dict does NOT include margin - pass it separately when needed
-PLOT = dict(
-    plot_bgcolor='#fafaf8',
-    paper_bgcolor='rgba(0,0,0,0)',
-    font=dict(color='#78756e', family='Plus Jakarta Sans'),
-    xaxis=dict(gridcolor=GRID, linecolor=GRID, zerolinecolor=GRID, color='#78756e'),
-    yaxis=dict(gridcolor=GRID, linecolor=GRID, zerolinecolor=GRID, color='#78756e'),
+DARK_PLOT = dict(
+    plot_bgcolor='#1a2332', paper_bgcolor='rgba(0,0,0,0)',
+    font=dict(color='#94a3b8', family='Inter'),
+    xaxis=dict(gridcolor='rgba(255,255,255,0.05)', linecolor='rgba(255,255,255,0.08)',
+               zerolinecolor='rgba(255,255,255,0.05)', color='#64748b'),
+    yaxis=dict(gridcolor='rgba(255,255,255,0.05)', linecolor='rgba(255,255,255,0.08)',
+               zerolinecolor='rgba(255,255,255,0.05)', color='#64748b'),
 )
-MARGIN = dict(t=20, b=20, l=10, r=10)
+M = dict(t=20, b=20, l=10, r=10)
 
 def ap(fig, extra=None):
-    """Apply PLOT theme + default margin, optionally merge extra layout kwargs."""
-    kw = {**PLOT, 'margin': MARGIN}
-    if extra:
-        kw.update(extra)
+    kw = {**DARK_PLOT, 'margin': M}
+    if extra: kw.update(extra)
     fig.update_layout(**kw)
     return fig
 
 def prepare(df):
-    """Robustly prepare any CSV - works with both cleaned and raw uploads."""
     df = df.copy()
-
-    # ── Ensure numeric columns exist ──
     for col in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM']:
-        if col not in df.columns:
-            df[col] = np.nan
-
-    # ── Parse datetime components from raw data if missing ──
+        if col not in df.columns: df[col] = np.nan
     if 'hour' not in df.columns:
         if 'datetime' in df.columns:
             df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
@@ -391,33 +320,19 @@ def prepare(df):
             df['month'] = df.get('month', pd.Series(np.ones(len(df), dtype=int)))
             df['year']  = df.get('year',  pd.Series(np.full(len(df), 2015, dtype=int)))
             df['day']   = df.get('day',   pd.Series(np.ones(len(df), dtype=int)))
-
-    # ── Add season if missing ──
     if 'season' not in df.columns:
-        def month_to_season(m):
-            if m in [12,1,2]:  return 'Winter'
+        def mts(m):
+            if m in [12,1,2]: return 'Winter'
             elif m in [3,4,5]: return 'Spring'
             elif m in [6,7,8]: return 'Summer'
-            else:              return 'Autumn'
-        df['season'] = df['month'].apply(month_to_season)
-
-    # ── Add station if missing ──
-    if 'station' not in df.columns:
-        df['station'] = 'Unknown'
-
-    # ── Add station_type if missing (derive from station name or default Urban) ──
+            else: return 'Autumn'
+        df['season'] = df['month'].apply(mts)
+    if 'station' not in df.columns: df['station'] = 'Unknown'
     if 'station_type' not in df.columns:
-        suburban_stations = ['Changping','Dingling','Shunyi','Huairou']
-        df['station_type'] = df['station'].apply(
-            lambda s: 'Suburban' if any(sub in str(s) for sub in suburban_stations) else 'Urban'
-        )
-
-    # ── AQI category ──
+        sub = ['Changping','Dingling','Shunyi','Huairou']
+        df['station_type'] = df['station'].apply(lambda s: 'Suburban' if any(x in str(s) for x in sub) else 'Urban')
     if 'aqi_category' not in df.columns:
-        df['aqi_category'] = df['PM2.5'].apply(
-            lambda x: classify_aqi(x)[0] if pd.notnull(x) else 'Unknown'
-        )
-
+        df['aqi_category'] = df['PM2.5'].apply(lambda x: classify_aqi(x)[0] if pd.notnull(x) else 'Unknown')
     return df
 
 
@@ -452,28 +367,38 @@ def load_uploaded(fb): return prepare(pd.read_csv(fb))
 # ── SIDEBAR ──────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style='padding:20px 16px 16px;border-bottom:1px solid #e5e3dc;margin-bottom:8px;'>
-        <div style='font-family:Plus Jakarta Sans,sans-serif;font-size:1.05rem;font-weight:800;color:#1a1a18;'>Beijing AQI</div>
-        <div style='font-size:0.7rem;color:#78756e;letter-spacing:1px;margin-top:2px;'>Analytics Platform</div>
+    <div style='padding:22px 16px 18px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:10px;'>
+        <div style='display:flex;align-items:center;gap:9px;margin-bottom:4px;'>
+            <div style='width:34px;height:34px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);
+                        border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>
+                <i class="fa-solid fa-leaf" style="color:#00d4aa;font-size:15px;"></i>
+            </div>
+            <div>
+                <div style='font-size:0.95rem;font-weight:700;color:#f1f5f9;'>EcoMonitor</div>
+                <div style='font-size:0.6rem;color:#64748b;letter-spacing:0.5px;'>Deep Science Analytics</div>
+            </div>
+        </div>
     </div>""", unsafe_allow_html=True)
 
-    page = st.radio("Pages", [
-        "🏠  Overview",
-        "📂  Data Upload",
-        "📋  Dataset",
-        "📊  Visualisation",
-        "🤖  Model Performance",
-        "🔮  Live Predictor",
-        "📐  Data Relationships",
-        "📈  AQI Health Guide"
+    page = st.radio("nav", [
+        "\uf015  Overview",
+        "\uf093  Data Upload",
+        "\uf0ce  Dataset",
+        "\uf201  Visualisation",
+        "\uf544  Analytics",
+        "\uf15c  Reports",
     ], label_visibility="collapsed")
 
-    st.markdown("---")
-    st.markdown('<div style="font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#78756e;margin-bottom:8px;">Dataset</div>', unsafe_allow_html=True)
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    st.markdown("""<div style='font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                            color:#475569;margin:8px 4px 8px;'>
+        <i class="fa-solid fa-database" style="margin-right:5px;color:#64748b;"></i>Dataset Source
+    </div>""", unsafe_allow_html=True)
+
     uploaded = st.file_uploader("Upload CSV", type=["csv"], label_visibility="collapsed")
     if uploaded:
         df = load_uploaded(uploaded); dsrc = "uploaded"
-        st.success(f"✅ {uploaded.name}")
+        st.success(f"✓ {uploaded.name}")
     else:
         df = load_default(); dsrc = "default"
 
@@ -483,739 +408,760 @@ with st.sidebar:
          rf_mae,rf_rmse,rf_r2,lr_mae,lr_rmse,lr_r2) = train_model(df)
 
     st.markdown(f"""
-    <div style='font-size:0.72rem;color:#78756e;line-height:2.4;padding:4px 0;'>
-        <span style='color:#1a1a18;font-weight:500;'>Records</span>
-        <span style='color:#c9870a;font-family:DM Mono,monospace;float:right;'>{len(df):,}</span><br>
-        <span style='color:#1a1a18;font-weight:500;'>Stations</span>
-        <span style='color:#c9870a;font-family:DM Mono,monospace;float:right;'>{df['station'].nunique()}</span><br>
-        <span style='color:#1a1a18;font-weight:500;'>Model R²</span>
-        <span style='color:#c9870a;font-family:DM Mono,monospace;float:right;font-weight:700;'>{rf_r2:.4f}</span><br>
-        <span style='color:#1a1a18;font-weight:500;'>MAE</span>
-        <span style='color:#c9870a;font-family:DM Mono,monospace;float:right;'>{rf_mae:.2f} µg/m³</span>
+    <div style='margin-top:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+                border-radius:10px;padding:14px 16px;'>
+        <div style='font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                    color:#475569;margin-bottom:10px;display:flex;align-items:center;gap:5px;'>
+            <i class="fa-solid fa-circle-info" style="color:#64748b;"></i>Live Summary
+        </div>
+        <div style='font-size:0.75rem;line-height:2.5;'>
+            <div style='display:flex;justify-content:space-between;'>
+                <span style='color:#94a3b8;'>Records</span>
+                <span style='color:#00d4aa;font-family:DM Mono,monospace;'>{len(df):,}</span>
+            </div>
+            <div style='display:flex;justify-content:space-between;'>
+                <span style='color:#94a3b8;'>Stations</span>
+                <span style='color:#00d4aa;font-family:DM Mono,monospace;'>{df['station'].nunique()}</span>
+            </div>
+            <div style='display:flex;justify-content:space-between;'>
+                <span style='color:#94a3b8;'>Model R²</span>
+                <span style='color:#00d4aa;font-family:DM Mono,monospace;font-weight:700;'>{rf_r2:.4f}</span>
+            </div>
+            <div style='display:flex;justify-content:space-between;'>
+                <span style='color:#94a3b8;'>MAE</span>
+                <span style='color:#00d4aa;font-family:DM Mono,monospace;'>{rf_mae:.2f} µg/m³</span>
+            </div>
+        </div>
+    </div>
+    <div style='margin-top:10px;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);
+                border-radius:8px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;'>
+        <div style='display:flex;align-items:center;gap:6px;font-size:0.68rem;color:#00d4aa;font-weight:600;'>
+            <span style='width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;
+                         animation:pulse-dot 2s ease-in-out infinite;'></span>
+            System Online
+        </div>
+        <div style='font-size:0.65rem;color:#475569;'>CMP7005 · Cardiff Met</div>
+    </div>
+    <div style='margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);'>
+        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;margin-bottom:8px;cursor:pointer;'>
+            <i class="fa-solid fa-gear" style="width:14px;"></i><span>Settings</span>
+        </div>
+        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;cursor:pointer;'>
+            <i class="fa-solid fa-circle-question" style="width:14px;"></i><span>Support</span>
+        </div>
+    </div>
+    <div style='margin-top:16px;'>
+        <button onclick='' style='width:100%;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);
+                border-radius:8px;padding:9px;font-size:0.78rem;color:#00d4aa;cursor:pointer;
+                display:flex;align-items:center;justify-content:center;gap:7px;'>
+            <i class="fa-solid fa-plus"></i> New Analysis
+        </button>
     </div>""", unsafe_allow_html=True)
 
 
-# ── TOPBAR ────────────────────────────────────────────────────
-st.markdown(f"""<div class="topbar">
-    <div class="app-title">Beijing <span>AQI</span> Analytics</div>
-    <div class="topbar-right">
-        <span class="status-pill">System Online</span>
-        <span style='color:#78756e;'>CMP7005 · Cardiff Met University</span>
+# ── TOPBAR ───────────────────────────────────────────────────
+st.markdown(f"""
+<div class="eco-topbar">
+    <div class="eco-brand">
+        <i class="fa-solid fa-leaf" style="color:var(--teal);"></i>
+        Environmental <span class="brand-accent">Dashboard</span>
+    </div>
+    <div class="eco-topbar-right">
+        <div class="eco-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search data points...</span>
+        </div>
+        <div class="eco-status">
+            <div class="eco-status-dot"></div>
+            SYSTEM ONLINE
+        </div>
+        <div class="eco-icon-btn"><i class="fa-regular fa-bell"></i></div>
+        <div class="eco-icon-btn"><i class="fa-solid fa-gear"></i></div>
+        <div class="eco-avatar">U</div>
     </div>
 </div>""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# OVERVIEW
+# PAGE: OVERVIEW
 # ══════════════════════════════════════════════════════════════
-if page == "🏠  Overview":
-    avg_pm = df['PM2.5'].mean()
+if "Overview" in page or "\uf015" in page:
+    avg_pm  = df['PM2.5'].mean()
     good_pct = (df['aqi_category']=='Good').mean()*100
 
-    st.markdown(f"""<div class="hero">
-        <div class="hero-eyebrow">Beijing Multi-Site Air Quality Dataset · 2013-2017</div>
-        <div class="hero-title">Air Quality <span>Intelligence</span><br>Analytics Platform</div>
-        <div class="hero-desc">Comprehensive PM2.5 analysis across 4 Beijing monitoring stations - combining exploratory data analysis with machine learning prediction.</div>
-        <span class="hero-btn">Explore Dataset →</span>
-        <span class="hero-btn-2">View Model</span>
+    st.markdown(f"""
+    <div class="eco-hero">
+        <div class="eco-hero-eyebrow">
+            <i class="fa-solid fa-circle-dot"></i>
+            Beijing Multi-Site Air Quality Dataset &nbsp;·&nbsp; 2013-2017
+        </div>
+        <div class="eco-hero-title">
+            Air Quality <span class="ht-accent">Intelligence</span><br>Analytics Platform
+        </div>
+        <div class="eco-hero-desc">
+            Comprehensive PM2.5 analysis across 4 Beijing monitoring stations — combining
+            exploratory data analysis with machine learning prediction to track environmental
+            health trends and mitigation efficacy.
+        </div>
+        <span class="eco-btn"><i class="fa-solid fa-arrow-right"></i>Explore Dataset</span>
+        <span class="eco-btn-ghost"><i class="fa-solid fa-brain"></i>View Model</span>
     </div>""", unsafe_allow_html=True)
 
+    # Stat Cards
     c1,c2,c3,c4 = st.columns(4)
-    for col,lbl,val,tag_cls,tag_txt,bar_w,bar_col in [
-        (c1,"TOTAL RECORDS",   f"{len(df):,}",       "tag-gold",  "ACTIVE",       72, GOLD),
-        (c2,"STATIONS",        f"{df['station'].nunique()} Sites","tag-green","ONLINE",55,"#4ade80"),
-        (c3,"MEAN PM2.5",      f"{avg_pm:.1f} µg/m³","tag-red",   "ABOVE WHO",    65,"#f87171"),
-        (c4,"MODEL R²",        f"{rf_r2:.4f}",        "tag-gold",  "OPTIMISED",    int(rf_r2*100),GOLD),
-    ]:
+    cards = [
+        (c1,"fa-database","TOTAL RECORDS",  f"{len(df):,}",           "eco-badge-teal",  "ACTIVE",    72,   TEAL),
+        (c2,"fa-location-dot","STATIONS",   f"{df['station'].nunique()} Sites","eco-badge-green","ONLINE",55,GREEN),
+        (c3,"fa-wind","MEAN PM2.5",         f"{avg_pm:.1f} µg/m³",    "eco-badge-red",   "ABOVE WHO", 65,   RED),
+        (c4,"fa-chart-simple","MODEL R²",   f"{rf_r2:.4f}",            "eco-badge-teal",  "OPTIMISED", int(rf_r2*100), TEAL),
+    ]
+    for col,icon,lbl,val,bc,bt,bw,bcol in cards:
         with col:
-            st.markdown(f"""<div class="stat-card">
-                <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;'>
-                    <div class="stat-label">{lbl}</div>
-                    <div class="stat-tag {tag_cls}">{tag_txt}</div>
+            st.markdown(f"""
+            <div class="eco-stat">
+                <div class="eco-stat-top">
+                    <div class="eco-stat-label">{lbl}</div>
+                    <div class="eco-badge {bc}">
+                        <i class="fa-solid fa-circle" style="font-size:5px;"></i>{bt}
+                    </div>
                 </div>
-                <div class="stat-value">{val}</div>
-                <div class="stat-bar"><div class="stat-fill" style="width:{bar_w}%;background:{bar_col};"></div></div>
+                <div class="eco-stat-value">{val}</div>
+                <div class="eco-stat-bar"><div class="eco-stat-fill" style="width:{bw}%;background:{bcol};"></div></div>
+                <i class="fa-solid {icon} eco-stat-icon"></i>
             </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-    L, R = st.columns([1.7,1])
+    L, R = st.columns([1.7, 1])
 
     with L:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Monthly PM2.5 Trend (2013-2017)</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">Mean hourly PM2.5 across all 4 stations with WHO guideline</div>', unsafe_allow_html=True)
         mo = df.groupby(['year','month'])['PM2.5'].mean().reset_index()
         mo['date'] = pd.to_datetime(mo[['year','month']].assign(day=1))
-        fig_tr = px.line(mo, x='date', y='PM2.5', color_discrete_sequence=[GOLD], height=250)
-        fig_tr.update_traces(line_width=2.5)
-        fig_tr.add_hline(y=15, line_dash='dot', line_color='#4ade80',
-                         annotation_text='WHO 15 µg/m³', annotation_font_color='#166534')
-        ap(fig_tr); st.plotly_chart(fig_tr, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        fig_tr = px.line(mo, x='date', y='PM2.5', color_discrete_sequence=[TEAL], height=265)
+        fig_tr.update_traces(line_width=2.5, fill='tozeroy', fillcolor='rgba(0,212,170,0.05)')
+        fig_tr.add_hline(y=15, line_dash='dot', line_color=GREEN,
+                         annotation_text='WHO 15 µg/m³', annotation_font_color=GREEN)
+        ap(fig_tr)
+        st.markdown("""
+        <div class="eco-card" style="margin-bottom:0;">
+            <div class="eco-card-title">
+                <i class="fa-solid fa-chart-line"></i>Monthly PM2.5 Trend (2013-2017)
+                <span style="margin-left:auto;">
+                    <span class="eco-badge eco-badge-teal" style="cursor:pointer;">
+                        <i class="fa-solid fa-download" style="font-size:7px;"></i>Download CSV
+                    </span>
+                </span>
+            </div>
+            <div class="eco-card-sub">Mean hourly PM2.5 across all 4 stations with WHO guideline reference</div>
+        </div>""", unsafe_allow_html=True)
+        st.plotly_chart(fig_tr, use_container_width=True)
 
     with R:
         aqi_c = df['aqi_category'].value_counts()
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">AQI Category Distribution</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">Proportion of readings in each health band</div>', unsafe_allow_html=True)
-        for cat, count in aqi_c.items():
-            pct = count/len(df)*100
-            col = AQI_COL.get(cat, GOLD)
-            st.markdown(f"""<div class="dist-row">
-                <span class="dist-name" style='font-size:0.74rem;'>{cat}</span>
-                <div class="dist-bar-bg"><div class="dist-bar" style="width:{pct:.0f}%;background:{col};"></div></div>
-                <span class="dist-val">{pct:.1f}%</span>
-            </div>""", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        cat_order = ['Good','Moderate','Unhealthy for Sensitive Groups','Unhealthy','Very Unhealthy','Hazardous']
+        st.markdown("""
+        <div class="eco-card" style="margin-bottom:0;">
+            <div class="eco-card-title"><i class="fa-solid fa-chart-pie"></i>AQI Category Distribution</div>
+            <div class="eco-card-sub">Proportion of readings in each health band</div>
+        """, unsafe_allow_html=True)
+        for cat in cat_order:
+            if cat in aqi_c.index:
+                pct = aqi_c[cat]/len(df)*100
+                short = cat.replace('Unhealthy for Sensitive Groups','Unhealthy (SG)')
+                col_bar = AQI_COL.get(cat, TEAL)
+                st.markdown(f"""
+                <div class="eco-dist-row">
+                    <span class="eco-dist-name">{short}</span>
+                    <div class="eco-dist-bar-bg"><div class="eco-dist-bar" style="width:{pct:.0f}%;background:{col_bar};"></div></div>
+                    <span class="eco-dist-val">{pct:.1f}%</span>
+                </div>""", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown(f"""<div class="insight">
-            <div class="insight-title">🔬 Key Finding</div>
-            <div class="insight-body">Only <b>{good_pct:.1f}%</b> of hourly readings meet WHO PM2.5 standards (≤35 µg/m³). The annual mean of <b>{avg_pm:.1f} µg/m³</b> is <b>{avg_pm/15:.1f}×</b> the WHO 24-hour guideline of 15 µg/m³.</div>
+        st.markdown(f"""
+        <div class="eco-insight" style="margin-top:14px;">
+            <div class="eco-insight-title"><i class="fa-solid fa-lightbulb"></i>Key Finding</div>
+            <div class="eco-insight-body">
+                Only <b style="color:#f1f5f9;">{good_pct:.1f}%</b> of hourly readings meet WHO PM2.5 standards
+                (≤35 µg/m³). The annual mean of <b style="color:#f1f5f9;">{avg_pm:.1f} µg/m³</b> is
+                <b style="color:#ef4444;">{avg_pm/15:.1f}×</b> the WHO 24-hour guideline.
+            </div>
         </div>""", unsafe_allow_html=True)
 
-    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-eyebrow">Station Network</div>', unsafe_allow_html=True)
-    stn = df.groupby('station').agg(
-        mean_pm25=('PM2.5','mean'), max_pm25=('PM2.5','max'),
-        records=('PM2.5','count')
-    ).reset_index()
-    # safely get station_type - may be missing in raw uploads
+    st.markdown('<div class="eco-divider"></div>', unsafe_allow_html=True)
+    st.markdown("""<div class="pg-eyebrow"><i class="fa-solid fa-tower-broadcast"></i>Station Network</div>""", unsafe_allow_html=True)
+
+    stn = df.groupby('station').agg(mean_pm25=('PM2.5','mean'),max_pm25=('PM2.5','max'),records=('PM2.5','count')).reset_index()
     if 'station_type' in df.columns:
         stype_map = df.groupby('station')['station_type'].first().to_dict()
         stn['station_type'] = stn['station'].map(stype_map).fillna('Urban')
     else:
         stn['station_type'] = 'Urban'
-    for col_s,(_, row) in zip(st.columns(len(stn)), stn.iterrows()):
-        sc = GOLD if row['station_type']=='Urban' else '#166534'
-        bg = 'rgba(201,135,10,0.08)' if row['station_type']=='Urban' else 'rgba(26,122,74,0.08)'
-        col_s.markdown(f"""<div class="stat-card">
-            <div style='display:inline-block;font-size:0.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-                        padding:2px 8px;border-radius:4px;background:{bg};color:{sc};margin-bottom:10px;'>{row['station_type']}</div>
-            <div style='font-size:0.95rem;font-weight:700;color:{TEXT};margin-bottom:10px;'>{row['station']}</div>
-            <div style='font-size:0.72rem;color:#78756e;line-height:2.2;'>
-                Mean PM2.5 <span style='color:{GOLD};font-family:DM Mono;float:right;'>{row['mean_pm25']:.1f}</span><br>
-                Max PM2.5  <span style='color:#c0392b;font-family:DM Mono;float:right;'>{row['max_pm25']:.0f}</span><br>
-                Records    <span style='color:{TEXT};font-family:DM Mono;float:right;'>{row['records']:,}</span>
+
+    for col_s, (_,row) in zip(st.columns(len(stn)), stn.iterrows()):
+        is_sub = row['station_type']=='Suburban'
+        bc = 'eco-badge-blue' if is_sub else 'eco-badge-amber'
+        bcol = BLUE if is_sub else AMBER
+        icon = 'fa-tree' if is_sub else 'fa-city'
+        pm_col = RED if row['mean_pm25']>75 else AMBER if row['mean_pm25']>35 else GREEN
+        col_s.markdown(f"""
+        <div class="eco-stat" style="border-top:2px solid {bcol};">
+            <div class="eco-badge {bc}" style="margin-bottom:12px;">
+                <i class="fa-solid {icon}" style="font-size:8px;"></i>{row['station_type'].upper()}
             </div>
-        </div>""", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════
-# DATA UPLOAD
-# ══════════════════════════════════════════════════════════════
-elif page == "📂  Data Upload":
-    st.markdown('<div class="pg-eyebrow">Archive Management</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">Import Dataset</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-sub">Upload your cleaned Beijing air quality CSV. All pages - visualisations, model and predictor - update automatically.</div>', unsafe_allow_html=True)
-
-    L, R = st.columns([1.5,1])
-    with L:
-        border_col = "#f5d07a" if dsrc == "uploaded" else "#e5e3dc"
-        msg = f"<b style='color:{GOLD};'>{uploaded.name}</b> is active and powering the application." if dsrc=="uploaded" else "Use the <b>file uploader in the left sidebar</b> to select your CSV file."
-        st.markdown(f"""<div class="card" style='border:2px dashed {border_col};text-align:center;padding:44px;'>
-            <div style='font-size:2.5rem;opacity:0.3;margin-bottom:16px;'>📂</div>
-            <div style='font-size:1rem;font-weight:700;color:{TEXT};margin-bottom:8px;'>
-                {"✅ File Loaded Successfully" if dsrc=="uploaded" else "Drop your CSV here"}
+            <div style='font-size:0.98rem;font-weight:700;color:{TEXT};margin-bottom:14px;
+                         display:flex;align-items:center;gap:7px;'>
+                <i class="fa-solid fa-location-dot" style="color:{bcol};font-size:0.8rem;"></i>{row['station']}
             </div>
-            <div style='font-size:0.82rem;color:#78756e;'>{msg}</div>
-            <div style='margin-top:18px;font-size:0.58rem;letter-spacing:2px;color:#b5b2a8;font-weight:700;'>SUPPORTED FORMAT: .CSV ONLY</div>
-        </div>""", unsafe_allow_html=True)
-        if dsrc == "default":
-            st.info("ℹ️ Using default dataset - beijing_air_quality_cleaned.csv")
-
-    with R:
-        st.markdown(f"""<div class="card">
-            <div class="stat-label">Total Observations</div>
-            <div style='font-family:DM Mono,monospace;font-size:2.2rem;font-weight:500;color:{GOLD};margin-bottom:14px;'>{len(df):,}</div>
-            <div class="stat-label">Columns</div>
-            <div style='font-family:DM Mono,monospace;font-size:2.2rem;font-weight:500;color:{TEXT};margin-bottom:16px;'>{df.shape[1]}</div>
-            <div style='display:flex;align-items:center;gap:8px;margin-bottom:16px;'>
-                <span class="stat-tag tag-green">VERIFIED</span>
-                <span style='font-size:0.72rem;color:#78756e;'>File integrity checked</span>
-            </div>
-            <div style='background:#f8f7f4;border:1px solid #e5e3dc;border-radius:8px;padding:14px;'>
-                <div style='font-size:0.58rem;font-weight:700;letter-spacing:1px;color:{GOLD};margin-bottom:8px;text-transform:uppercase;'>Required Columns</div>
-                <div style='font-size:0.72rem;color:#78756e;line-height:2;font-family:DM Mono,monospace;font-size:0.68rem;'>
-                    PM2.5 · PM10 · SO2 · NO2 · CO · O3<br>
-                    TEMP · PRES · DEWP · RAIN · WSPM<br>
-                    hour · month · station · season · station_type
+            <div style='font-size:0.73rem;line-height:2.5;'>
+                <div style='display:flex;justify-content:space-between;'>
+                    <span style='color:{MUTED};'>Mean PM2.5</span>
+                    <span style='color:{pm_col};font-family:DM Mono,monospace;font-weight:600;'>{row['mean_pm25']:.1f}</span>
+                </div>
+                <div style='display:flex;justify-content:space-between;'>
+                    <span style='color:{MUTED};'>Max PM2.5</span>
+                    <span style='color:{RED};font-family:DM Mono,monospace;'>{row['max_pm25']:.0f}</span>
+                </div>
+                <div style='display:flex;justify-content:space-between;'>
+                    <span style='color:{MUTED};'>Records</span>
+                    <span style='color:{TEXT};font-family:DM Mono,monospace;'>{row['records']:,}</span>
                 </div>
             </div>
         </div>""", unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title" style="margin-bottom:12px;">Data Preview - Top 10 Rows</div>', unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════
+# PAGE: DATA UPLOAD
+# ══════════════════════════════════════════════════════════════
+elif "Data Upload" in page or "Upload" in page or "\uf093" in page:
+    st.markdown("""
+    <div class="pg-eyebrow"><i class="fa-solid fa-folder-open"></i>Archive Management</div>
+    <div class="pg-title">Import Dataset</div>
+    <div class="pg-sub">Upload your cleaned Beijing air quality CSV. All pages — visualisations, model and predictor — update automatically.</div>
+    """, unsafe_allow_html=True)
+
+    L, R = st.columns([1.5, 1])
+    with L:
+        border = "rgba(0,212,170,0.3)" if dsrc=="uploaded" else "rgba(255,255,255,0.1)"
+        ic = "#00d4aa" if dsrc=="uploaded" else "#64748b"
+        icon = "fa-circle-check" if dsrc=="uploaded" else "fa-cloud-arrow-up"
+        title = "File Loaded Successfully" if dsrc=="uploaded" else "Drop your CSV here"
+        msg = (f"<b style='color:#00d4aa;'>{uploaded.name}</b> is active." if dsrc=="uploaded"
+               else "Use the <b>file uploader in the left sidebar</b> to select your CSV.")
+        st.markdown(f"""
+        <div class="eco-card" style='border:1px dashed {border};text-align:center;padding:48px 36px;'>
+            <div style='width:58px;height:58px;background:rgba(0,212,170,0.07);border:1px solid rgba(0,212,170,0.2);
+                        border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;'>
+                <i class="fa-solid {icon}" style="color:{ic};font-size:1.4rem;"></i>
+            </div>
+            <div style='font-size:1rem;font-weight:600;color:{TEXT};margin-bottom:8px;'>{title}</div>
+            <div style='font-size:0.82rem;color:#64748b;'>{msg}</div>
+            <div style='margin-top:20px;font-size:0.58rem;letter-spacing:2px;color:#374151;font-weight:700;'>SUPPORTED: .CSV</div>
+        </div>""", unsafe_allow_html=True)
+        if dsrc=="default": st.info("ℹ️ Using default dataset — beijing_air_quality_cleaned.csv")
+
+    with R:
+        mp = df.isnull().sum().sum()/(df.shape[0]*df.shape[1])*100
+        st.markdown(f"""
+        <div class="eco-card">
+            <div class="eco-card-title"><i class="fa-solid fa-chart-simple"></i>File Statistics</div>
+            <div style='margin:14px 0;'>
+                <div class='eco-stat-label' style='margin-bottom:4px;'>Total Observations</div>
+                <div style='font-family:DM Mono,monospace;font-size:2.2rem;font-weight:500;color:{TEAL};'>{len(df):,}</div>
+            </div>
+            <div style='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;'>
+                <div>
+                    <div class='eco-stat-label' style='margin-bottom:4px;'>Columns</div>
+                    <div style='font-family:DM Mono,monospace;font-size:1.6rem;color:{TEXT};'>{df.shape[1]}</div>
+                </div>
+                <div>
+                    <div class='eco-stat-label' style='margin-bottom:4px;'>Completeness</div>
+                    <div style='font-family:DM Mono,monospace;font-size:1.6rem;color:{GREEN};'>{100-mp:.1f}%</div>
+                </div>
+            </div>
+            <div style='display:flex;align-items:center;gap:8px;margin-bottom:14px;'>
+                <div class="eco-badge eco-badge-green"><i class="fa-solid fa-shield-halved" style="font-size:8px;"></i>VERIFIED</div>
+                <span style='font-size:0.72rem;color:#64748b;'>Integrity checked</span>
+            </div>
+            <div style='background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:14px;'>
+                <div style='font-size:0.58rem;font-weight:700;letter-spacing:1px;color:{TEAL};margin-bottom:8px;text-transform:uppercase;'>
+                    <i class="fa-solid fa-list-check" style="margin-right:4px;"></i>Required Columns
+                </div>
+                <div style='font-size:0.7rem;color:#64748b;line-height:2;font-family:DM Mono,monospace;'>
+                    PM2.5 · PM10 · SO2 · NO2 · CO · O3<br>TEMP · PRES · DEWP · RAIN · WSPM<br>hour · month · station · season
+                </div>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+    st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-table"></i>Data Preview — Top 10 Rows</div></div>""", unsafe_allow_html=True)
     dcols = [c for c in ['year','month','day','hour','station','station_type','season','PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in df.columns]
     st.dataframe(df[dcols].head(10), use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title" style="margin-bottom:12px;">Column Validation</div>', unsafe_allow_html=True)
-    req = ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM','hour','month','station','season','station_type']
-    vrows = [{'Column':c,'Present':'✅' if c in df.columns else '❌','Missing Values':int(df[c].isnull().sum()) if c in df.columns else 'N/A','Type':str(df[c].dtype) if c in df.columns else '-','Example':str(df[c].dropna().iloc[0]) if c in df.columns and len(df[c].dropna())>0 else '-'} for c in req]
+    st.markdown("""<div class="eco-card" style="margin-top:14px;"><div class="eco-card-title"><i class="fa-solid fa-list-check"></i>Column Validation</div></div>""", unsafe_allow_html=True)
+    req=['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM','hour','month','station','season','station_type']
+    vrows=[{'Column':c,'Present':'✅' if c in df.columns else '❌','Missing Values':int(df[c].isnull().sum()) if c in df.columns else 'N/A','Type':str(df[c].dtype) if c in df.columns else '-','Example':str(df[c].dropna().iloc[0]) if c in df.columns and len(df[c].dropna())>0 else '-'} for c in req]
     st.dataframe(pd.DataFrame(vrows), use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# DATASET
+# PAGE: DATASET
 # ══════════════════════════════════════════════════════════════
-elif page == "📋  Dataset":
-    st.markdown('<div class="pg-eyebrow">Data Intelligence</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">Dataset Overview</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-sub">Technical audit of meteorological and pollutant concentrations from 4 Beijing monitoring stations (March 2013 - February 2017).</div>', unsafe_allow_html=True)
+elif "Dataset" in page or "\uf0ce" in page:
+    st.markdown("""
+    <div class="pg-eyebrow"><i class="fa-solid fa-microchip"></i>Data Intelligence</div>
+    <div class="pg-title">Dataset Overview</div>
+    <div class="pg-sub">Technical audit of meteorological and pollutant concentrations from 4 Beijing monitoring stations (March 2013 — February 2017).</div>
+    """, unsafe_allow_html=True)
 
-    miss_pct = df.isnull().sum().sum()/(df.shape[0]*df.shape[1])*100
+    mp = df.isnull().sum().sum()/(df.shape[0]*df.shape[1])*100
     c1,c2,c3,c4 = st.columns(4)
-    for col,lbl,val in [(c1,"Observations",f"{len(df):,}"),(c2,"Columns",f"{df.shape[1]}"),(c3,"Completeness",f"{100-miss_pct:.1f}%"),(c4,"Stations",f"{df['station'].nunique()}")]:
+    for col,icon,lbl,val,vc in [
+        (c1,"fa-database","Observations",f"{len(df):,}",TEAL),
+        (c2,"fa-table-columns","Columns",f"{df.shape[1]}",TEXT),
+        (c3,"fa-circle-check","Completeness",f"{100-mp:.1f}%",GREEN),
+        (c4,"fa-tower-broadcast","Stations",f"{df['station'].nunique()}",BLUE),
+    ]:
         with col:
-            st.markdown(f'<div class="stat-card"><div class="stat-label">{lbl}</div><div class="stat-value">{val}</div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="eco-stat">
+                <div class="eco-stat-label">{lbl}</div>
+                <div class="eco-stat-value" style="color:{vc};">{val}</div>
+                <i class="fa-solid {icon} eco-stat-icon"></i>
+            </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-    L, R = st.columns([1.3,1])
+    L, R = st.columns([1.3, 1])
     with L:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Missing Values per Feature</div>', unsafe_allow_html=True)
         kc=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in df.columns]
         mc=df[kc].isnull().sum().reset_index(); mc.columns=['Feature','Missing']
         mc['Pct']=(mc['Missing']/len(df)*100).round(2)
-        fig_m=px.bar(mc,x='Feature',y='Pct',color='Pct',height=255,color_continuous_scale=['#dcfce7','#fde68a','#fca5a5'])
+        fig_m=px.bar(mc,x='Feature',y='Pct',color='Pct',height=255,color_continuous_scale=[GREEN,AMBER,RED])
         ap(fig_m, {'coloraxis_showscale':False})
-        st.plotly_chart(fig_m,use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-triangle-exclamation"></i>Missing Values per Feature</div></div>""", unsafe_allow_html=True)
+        st.plotly_chart(fig_m, use_container_width=True)
     with R:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Schema</div>', unsafe_allow_html=True)
         sr=[{'Column':c,'Type':str(df[c].dtype),'Example':str(df[c].dropna().iloc[0]) if len(df[c].dropna())>0 else '-','Status':'✅'} for c in df.columns[:16]]
-        st.dataframe(pd.DataFrame(sr),use_container_width=True,height=255,hide_index=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-code"></i>Schema</div></div>""", unsafe_allow_html=True)
+        st.dataframe(pd.DataFrame(sr), use_container_width=True, height=255, hide_index=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">Statistical Summary</div>', unsafe_allow_html=True)
+    st.markdown("""<div class="eco-card" style="margin-top:4px;"><div class="eco-card-title"><i class="fa-solid fa-calculator"></i>Statistical Summary</div></div>""", unsafe_allow_html=True)
     nc=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in df.columns]
     sm=df[nc].describe().T.round(2)[['count','mean','std','min','25%','50%','75%','max']]
     sm.columns=['Count','Mean','Std Dev','Min','25%','50%','75%','Max']; sm.index.name='Feature'
-    st.dataframe(sm.reset_index(),use_container_width=True,hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.dataframe(sm.reset_index(), use_container_width=True, hide_index=True)
 
-    st.markdown(f"""<div class="insight">
-        <div class="insight-title">{100-miss_pct:.1f}% Data Completeness</div>
-        <div class="insight-body">Four-station dataset covers March 2013 - February 2017. Missing values are concentrated in pollutant sensors during scheduled maintenance windows. After cleaning, <b>{len(df):,}</b> complete records remain for analysis and modelling.</div>
+    st.markdown(f"""
+    <div class="eco-insight">
+        <div class="eco-insight-title"><i class="fa-solid fa-circle-check"></i>{100-mp:.1f}% Data Completeness</div>
+        <div class="eco-insight-body">Four-station dataset covers March 2013 — February 2017. After cleaning, <b style="color:{TEXT};">{len(df):,}</b> complete records remain for analysis and modelling.</div>
     </div>""", unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title" style="margin-bottom:12px;">Interactive Data Explorer</div>', unsafe_allow_html=True)
-    f1,f2,f3 = st.columns(3)
+    st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-filter"></i>Interactive Data Explorer</div></div>""", unsafe_allow_html=True)
+    f1,f2,f3=st.columns(3)
     ss=f1.selectbox("Station",['All']+sorted(df['station'].unique().tolist()))
-    se=f2.selectbox("Season",['All']+sorted(df['season'].unique().tolist()))
-    sy=f3.selectbox("Year",['All']+sorted(df['year'].unique().tolist()))
+    se=f2.selectbox("Season", ['All']+sorted(df['season'].unique().tolist()))
+    sy=f3.selectbox("Year",   ['All']+sorted(df['year'].unique().tolist()))
     dff=df.copy()
     if ss!='All': dff=dff[dff['station']==ss]
     if se!='All': dff=dff[dff['season']==se]
     if sy!='All': dff=dff[dff['year']==int(sy)]
     st.caption(f"{len(dff):,} records after filters")
     dcols=[c for c in ['year','month','day','hour','station','station_type','season','PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in dff.columns]
-    st.dataframe(dff[dcols].head(500),use_container_width=True,height=300,hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.dataframe(dff[dcols].head(500), use_container_width=True, height=300, hide_index=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# VISUALISATION
+# PAGE: VISUALISATION
 # ══════════════════════════════════════════════════════════════
-elif page == "📊  Visualisation":
-    st.markdown('<div class="pg-eyebrow">Visual Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">Air Quality Analytics</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-sub">Interactive exploration of pollutant distributions, temporal patterns, station comparisons and variable relationships.</div>', unsafe_allow_html=True)
+elif "Visualisation" in page or "\uf201" in page:
+    st.markdown("""
+    <div class="pg-eyebrow"><i class="fa-solid fa-eye"></i>Visual Analysis</div>
+    <div class="pg-title">Air Quality Analytics</div>
+    <div class="pg-sub">Interactive exploration of pollutant distributions, temporal patterns, station comparisons and variable relationships.</div>
+    """, unsafe_allow_html=True)
 
-    tab1,tab2,tab3,tab4 = st.tabs(["📈 Distribution","⏱️ Temporal","🏙️ Stations","🔗 Bivariate"])
+    tab1,tab2,tab3,tab4=st.tabs(["  📈  Distribution  ","  ⏱️  Temporal  ","  🏙️  Stations  ","  🔗  Bivariate  "])
 
     with tab1:
-        L,R = st.columns([1.6,1])
+        L,R=st.columns([1.6,1])
         with L:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">PM2.5 Distribution Histogram</div>', unsafe_allow_html=True)
-            st.markdown('<div class="card-sub">Right-skewed distribution with WHO (15 µg/m³) and mean reference lines</div>', unsafe_allow_html=True)
-            fig_h=px.histogram(df,x='PM2.5',nbins=60,color_discrete_sequence=[GOLD],height=290)
-            fig_h.update_traces(marker_line_color=GRID,marker_line_width=0.5,opacity=0.85)
-            fig_h.add_vline(x=df['PM2.5'].mean(),line_dash='dash',line_color='#f87171',annotation_text=f"Mean: {df['PM2.5'].mean():.1f}")
-            fig_h.add_vline(x=15,line_dash='dot',line_color='#4ade80',annotation_text="WHO: 15")
-            ap(fig_h); st.plotly_chart(fig_h,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            fig_h=px.histogram(df,x='PM2.5',nbins=60,color_discrete_sequence=[TEAL],height=290)
+            fig_h.update_traces(marker_line_color='rgba(255,255,255,0.04)',marker_line_width=0.5,opacity=0.85)
+            fig_h.add_vline(x=df['PM2.5'].mean(),line_dash='dash',line_color=RED,annotation_text=f"Mean: {df['PM2.5'].mean():.1f}",annotation_font_color=RED)
+            fig_h.add_vline(x=15,line_dash='dot',line_color=GREEN,annotation_text="WHO: 15",annotation_font_color=GREEN)
+            ap(fig_h)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-chart-bar"></i>PM2.5 Distribution Histogram</div><div class="eco-card-sub">Right-skewed with WHO and mean reference lines</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_h, use_container_width=True)
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">All Pollutants - Box Plots</div>', unsafe_allow_html=True)
             pols=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3'] if c in df.columns]
-            clrs=[GOLD,GOLD2,'#fb923c','#f87171','#a78bfa','#4ade80']
+            clrs=[TEAL,TEAL2,AMBER,RED,'#8b5cf6',GREEN]
             fig_b=go.Figure()
             for p,c in zip(pols,clrs):
                 fig_b.add_trace(go.Box(y=df[p].dropna(),name=p,marker_color=c,boxmean=True,line_width=1.5))
             ap(fig_b, {'height':270,'yaxis_title':'µg/m³'})
-            st.plotly_chart(fig_b,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-box"></i>All Pollutants — Box Plots</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_b, use_container_width=True)
 
         with R:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">Correlation Heatmap</div>', unsafe_allow_html=True)
-            st.markdown('<div class="card-sub">Cross-pollutant dependency matrix</div>', unsafe_allow_html=True)
             cc=[c for c in ['PM2.5','PM10','NO2','O3','TEMP','WSPM','PRES'] if c in df.columns]
-            fig_c=px.imshow(df[cc].corr().round(2),
-                            color_continuous_scale=['#dcfce7','#fef9c3','#fef3dc','#fde68a','#f5a623'],
-                            zmin=-1,zmax=1,text_auto=True,height=310)
+            fig_c=px.imshow(df[cc].corr().round(2),color_continuous_scale=['#1e3a5f','#0d6e64','#00b894',TEAL],zmin=-1,zmax=1,text_auto=True,height=310)
             ap(fig_c, {'coloraxis_showscale':False})
-            fig_c.update_traces(textfont=dict(color='#1a1a18',size=10))
-            st.plotly_chart(fig_c,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            fig_c.update_traces(textfont=dict(color='#f1f5f9',size=10))
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-grip"></i>Correlation Heatmap</div><div class="eco-card-sub">Cross-pollutant dependency matrix</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_c, use_container_width=True)
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">AQI Breakdown</div>', unsafe_allow_html=True)
             ac=df['aqi_category'].value_counts().reset_index(); ac.columns=['Category','Count']
-            fig_p=px.pie(ac,names='Category',values='Count',color='Category',
-                         color_discrete_map=AQI_COL,height=220)
-            ap(fig_p, {'margin':dict(t=10,b=10,l=0,r=0),
-                       'legend':dict(font=dict(color='#78756e',size=9),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_p,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            fig_p=px.pie(ac,names='Category',values='Count',color='Category',color_discrete_map=AQI_COL,height=230,hole=0.45)
+            ap(fig_p, {'margin':dict(t=10,b=10,l=0,r=0),'legend':dict(font=dict(color=MUTED,size=9),bgcolor='rgba(0,0,0,0)')})
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-circle-half-stroke"></i>AQI Breakdown</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_p, use_container_width=True)
 
     with tab2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Monthly PM2.5 Trend</div>', unsafe_allow_html=True)
-        mo=df.groupby(['year','month'])['PM2.5'].mean().reset_index()
-        mo['date']=pd.to_datetime(mo[['year','month']].assign(day=1))
-        fig_l=px.line(mo,x='date',y='PM2.5',color_discrete_sequence=[GOLD],height=270)
-        fig_l.update_traces(line_width=2.5)
-        fig_l.add_hline(y=15,line_dash='dot',line_color='#4ade80',
-                        annotation_text='WHO: 15 µg/m³',annotation_font_color='#166534')
-        ap(fig_l); st.plotly_chart(fig_l,use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        mo=df.groupby(['year','month'])['PM2.5'].mean().reset_index(); mo['date']=pd.to_datetime(mo[['year','month']].assign(day=1))
+        fig_l=px.line(mo,x='date',y='PM2.5',color_discrete_sequence=[TEAL],height=270)
+        fig_l.update_traces(line_width=2.5,fill='tozeroy',fillcolor='rgba(0,212,170,0.04)')
+        fig_l.add_hline(y=15,line_dash='dot',line_color=GREEN,annotation_text='WHO: 15 µg/m³',annotation_font_color=GREEN)
+        ap(fig_l)
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-chart-line"></i>Monthly PM2.5 Trend</div></div>""", unsafe_allow_html=True)
+        st.plotly_chart(fig_l, use_container_width=True)
+
         t1,t2=st.columns(2)
         with t1:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">Hour-of-Day Pattern</div>', unsafe_allow_html=True)
             ho=df.groupby('hour')['PM2.5'].mean().reset_index()
-            fig_ho=px.area(ho,x='hour',y='PM2.5',height=230,color_discrete_sequence=[GOLD])
-            fig_ho.update_traces(fillcolor='rgba(201,135,10,0.1)',line_width=2)
-            ap(fig_ho); st.plotly_chart(fig_ho,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            fig_ho=px.area(ho,x='hour',y='PM2.5',height=230,color_discrete_sequence=[TEAL])
+            fig_ho.update_traces(fillcolor='rgba(0,212,170,0.07)',line_width=2); ap(fig_ho)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-regular fa-clock"></i>Hour-of-Day Pattern</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_ho, use_container_width=True)
         with t2:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">Monthly Seasonal Pattern</div>', unsafe_allow_html=True)
             mn_m={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
             ma=df.groupby('month')['PM2.5'].mean().reset_index(); ma['Month']=ma['month'].map(mn_m)
-            fig_ma=px.bar(ma,x='Month',y='PM2.5',color='PM2.5',height=230,
-                          color_continuous_scale=['#dcfce7','#fef3dc','#fde68a','#fca5a5'])
+            fig_ma=px.bar(ma,x='Month',y='PM2.5',color='PM2.5',height=230,color_continuous_scale=[GREEN,AMBER,RED])
             ap(fig_ma, {'coloraxis_showscale':False})
-            st.plotly_chart(fig_ma,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-calendar"></i>Monthly Seasonal Pattern</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_ma, use_container_width=True)
 
     with tab3:
         s1,s2=st.columns(2)
         with s1:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
             sa=df.groupby('station')['PM2.5'].mean().reset_index().sort_values('PM2.5',ascending=True)
-            fig_sa=px.bar(sa,x='PM2.5',y='station',orientation='h',color='PM2.5',height=250,
-                          color_continuous_scale=['#dcfce7','#fef3dc','#fde68a','#fca5a5'],
-                          labels={'PM2.5':'Mean PM2.5 (µg/m³)'})
+            fig_sa=px.bar(sa,x='PM2.5',y='station',orientation='h',color='PM2.5',height=260,color_continuous_scale=[GREEN,AMBER,RED],labels={'PM2.5':'Mean PM2.5 (µg/m³)'})
             ap(fig_sa, {'coloraxis_showscale':False})
-            st.plotly_chart(fig_sa,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-ranking-star"></i>Station PM2.5 Ranking</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_sa, use_container_width=True)
         with s2:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            # safely color by station_type if column exists
-            _bs_color = 'station_type' if 'station_type' in df.columns else None
-            _bs_kwargs = dict(color_discrete_map={'Urban':GOLD,'Suburban':GOLD2}) if _bs_color else {}
-            fig_bs=px.box(df,x='station',y='PM2.5',color=_bs_color,height=250,
-                          labels={'PM2.5':'PM2.5 (µg/m³)'},**_bs_kwargs)
-            ap(fig_bs, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_bs,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">PM2.5 by Season and Station</div>', unsafe_allow_html=True)
+            _bc='station_type' if 'station_type' in df.columns else None
+            _bk=dict(color_discrete_map={'Urban':AMBER,'Suburban':BLUE}) if _bc else {}
+            fig_bs=px.box(df,x='station',y='PM2.5',color=_bc,height=260,labels={'PM2.5':'PM2.5 (µg/m³)'},**_bk)
+            ap(fig_bs, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-box-open"></i>Station Distribution</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_bs, use_container_width=True)
+
         so=['Winter','Spring','Summer','Autumn']
-        if 'season' not in df.columns: df['season'] = 'Unknown'
+        if 'season' not in df.columns: df['season']='Unknown'
         seas=df.groupby(['season','station'])['PM2.5'].mean().reset_index()
         seas['season']=pd.Categorical(seas['season'],categories=so,ordered=True)
-        fig_se=px.bar(seas.sort_values('season'),x='season',y='PM2.5',color='station',
-                      barmode='group',height=270,
-                      color_discrete_sequence=[GOLD,GOLD2,'#60a5fa','#a78bfa'],
-                      labels={'PM2.5':'Mean PM2.5 (µg/m³)'})
-        ap(fig_se, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-        st.plotly_chart(fig_se,use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        fig_se=px.bar(seas.sort_values('season'),x='season',y='PM2.5',color='station',barmode='group',height=270,color_discrete_sequence=[TEAL,TEAL2,BLUE,'#8b5cf6'],labels={'PM2.5':'Mean PM2.5 (µg/m³)'})
+        ap(fig_se, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-snowflake"></i>PM2.5 by Season and Station</div></div>""", unsafe_allow_html=True)
+        st.plotly_chart(fig_se, use_container_width=True)
 
     with tab4:
         b1,b2=st.columns(2)
         xv=b1.selectbox("X-axis variable",[c for c in ['TEMP','PRES','DEWP','WSPM','NO2','CO','SO2','O3','PM10'] if c in df.columns])
         cv=b2.selectbox("Colour by",[c for c in ['season','station_type','station'] if c in df.columns])
         sdf=df[[xv,'PM2.5',cv]].dropna().sample(min(5000,len(df)),random_state=42)
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        fig_s=px.scatter(sdf,x=xv,y='PM2.5',color=cv,opacity=0.45,height=360,
-                         color_discrete_sequence=[GOLD,GOLD2,'#60a5fa','#a78bfa'])
+        fig_s=px.scatter(sdf,x=xv,y='PM2.5',color=cv,opacity=0.45,height=380,color_discrete_sequence=[TEAL,TEAL2,BLUE,'#8b5cf6'])
         x2=sdf[xv].values; y2=sdf['PM2.5'].values; msk=~(np.isnan(x2)|np.isnan(y2))
         if msk.sum()>1:
             co_=np.polyfit(x2[msk],y2[msk],1); xl=np.linspace(x2[msk].min(),x2[msk].max(),100)
-            fig_s.add_trace(go.Scatter(x=xl,y=np.polyval(co_,xl),mode='lines',name='Trend',
-                                        line=dict(color='#f87171',width=2,dash='dash')))
-        ap(fig_s, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-        st.plotly_chart(fig_s,use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            fig_s.add_trace(go.Scatter(x=xl,y=np.polyval(co_,xl),mode='lines',name='Trend',line=dict(color=RED,width=2,dash='dash')))
+        ap(fig_s, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-circle-nodes"></i>Bivariate Scatter Explorer</div></div>""", unsafe_allow_html=True)
+        st.plotly_chart(fig_s, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# MODEL PERFORMANCE
+# PAGE: ANALYTICS (Model + Predictor + Relationships)
 # ══════════════════════════════════════════════════════════════
-elif page == "🤖  Model Performance":
-    st.markdown('<div class="pg-eyebrow">Machine Learning</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">Model Performance</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="pg-sub">Optimised Random Forest vs Linear Regression baseline - 15 features, 112,204 training records, 80/20 split.</div>', unsafe_allow_html=True)
+elif "Analytics" in page or "\uf544" in page:
+    st.markdown("""
+    <div class="pg-eyebrow"><i class="fa-solid fa-robot"></i>Machine Learning</div>
+    <div class="pg-title">Model Analytics</div>
+    <div class="pg-sub">Optimised Random Forest vs Linear Regression baseline — 15 features, 80/20 train/test split, full performance diagnostics and live PM2.5 prediction.</div>
+    """, unsafe_allow_html=True)
 
-    c1,c2,c3 = st.columns(3)
-    with c1:
-        st.markdown(f"""<div class="metric-card">
-            <div class="metric-label">R² Score</div>
-            <div class="metric-value">{rf_r2:.4f}</div>
-            <div class="metric-note metric-note-g">↗ +{rf_r2-lr_r2:.4f} vs Linear Regression</div>
-        </div>""", unsafe_allow_html=True)
-    with c2:
-        st.markdown(f"""<div class="metric-card">
-            <div class="metric-label">Mean Absolute Error</div>
-            <div class="metric-value">{rf_mae:.2f}</div>
-            <div class="metric-note">µg/m³ &nbsp;·&nbsp; {lr_mae-rf_mae:.2f} improvement</div>
-        </div>""", unsafe_allow_html=True)
-    with c3:
-        st.markdown(f"""<div class="metric-card">
-            <div class="metric-label">Root Mean Sq Error</div>
-            <div class="metric-value">{rf_rmse:.2f}</div>
-            <div class="metric-note metric-note-r">µg/m³ - driven by extreme events</div>
-        </div>""", unsafe_allow_html=True)
+    tab_perf,tab_pred,tab_rel=st.tabs(["  🎯  Model Performance  ","  🔮  Live Predictor  ","  📐  Relationships  "])
 
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-    L,R = st.columns([1.7,1])
-    with L:
-        ta,tb,tc = st.tabs(["🎯 Actual vs Predicted","📊 Model Comparison","📉 Residuals"])
-        with ta:
-            yta=np.array(y_test); res=yta-y_pred
-            idx=np.random.choice(len(yta),size=min(3000,len(yta)),replace=False)
-            avdf=pd.DataFrame({'Actual':yta[idx],'Predicted':y_pred[idx],'Residual':res[idx]})
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            fig_av=px.scatter(avdf,x='Actual',y='Predicted',color='Residual',
-                              color_continuous_scale=['#fca5a5','#fef9c3',GOLD],
-                              opacity=0.45,height=340,
-                              labels={'Actual':'Actual PM2.5 (µg/m³)','Predicted':'Predicted PM2.5 (µg/m³)'})
-            mv=max(avdf['Actual'].max(),avdf['Predicted'].max())
-            fig_av.add_trace(go.Scatter(x=[0,mv],y=[0,mv],mode='lines',name='Perfect',
-                                         line=dict(color=GOLD,dash='dash',width=1.5)))
-            ap(fig_av, {'coloraxis_showscale':False,
-                        'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_av,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with tb:
-            cd=pd.DataFrame({'Model':['Linear Regression','Random Forest'],
-                             'MAE':[lr_mae,rf_mae],'RMSE':[lr_rmse,rf_rmse],'R²':[lr_r2,rf_r2]})
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            fig_co=px.bar(pd.melt(cd,id_vars='Model',var_name='Metric',value_name='Value'),
-                          x='Metric',y='Value',color='Model',barmode='group',height=280,
-                          color_discrete_map={'Linear Regression':'#d1d5db','Random Forest':GOLD})
-            ap(fig_co, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_co,use_container_width=True)
-            st.dataframe(cd,use_container_width=True,hide_index=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with tc:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">Residual Distribution</div>', unsafe_allow_html=True)
-            st.markdown('<div class="card-sub">Distribution of (Actual − Predicted) errors - centred near zero confirms low bias</div>', unsafe_allow_html=True)
-            fig_rd=px.histogram(avdf,x='Residual',nbins=60,color_discrete_sequence=[GOLD],height=280)
-            fig_rd.add_vline(x=0,line_dash='dash',line_color='#f87171',annotation_text='Zero (Perfect)')
-            fig_rd.add_vline(x=res.mean(),line_dash='dot',line_color='#4ade80',annotation_text=f'Mean: {res.mean():.2f}')
-            ap(fig_rd); st.plotly_chart(fig_rd,use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-    with R:
-        fi=model.feature_importances_
-        fi_df=pd.DataFrame({'Feature':feature_cols,'Importance':fi}).sort_values('Importance',ascending=False)
-        mx=fi_df['Importance'].max()
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title" style="margin-bottom:16px;">Feature Importance</div>', unsafe_allow_html=True)
-        for _,row in fi_df.iterrows():
-            pct=int(row['Importance']/mx*100)
-            dp=int(row['Importance']/fi.sum()*100)
-            st.markdown(f"""<div class="feat-row">
-                <div class="feat-top"><span class="feat-name">{row['Feature']}</span><span class="feat-pct">{dp}%</span></div>
-                <div class="feat-bg"><div class="feat-fill" style="width:{pct}%;"></div></div>
-            </div>""", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════
-# LIVE PREDICTOR
-# ══════════════════════════════════════════════════════════════
-elif page == "🔮  Live Predictor":
-    st.markdown('<div class="pg-eyebrow">Real-Time Forecasting</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">PM2.5 Live Predictor</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="pg-sub">Input atmospheric conditions to generate an instant PM2.5 forecast - model R²={rf_r2:.4f}, MAE={rf_mae:.2f} µg/m³.</div>', unsafe_allow_html=True)
-
-    L,R = st.columns([1.4,1])
-    with L:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title" style="margin-bottom:14px;">Pollutant Inputs (µg/m³)</div>', unsafe_allow_html=True)
-        p1,p2,p3 = st.columns(3)
-        ipm10=p1.number_input("PM10",0.0,1000.0,80.0,step=5.0)
-        iso2 =p2.number_input("SO2", 0.0,500.0, 15.0,step=1.0)
-        ino2 =p3.number_input("NO2", 0.0,300.0, 50.0,step=1.0)
-        p4,p5 = st.columns(2)
-        ico  =p4.number_input("CO",  0.0,15000.0,900.0,step=50.0)
-        io3  =p5.number_input("O3",  0.0,500.0,  60.0, step=5.0)
-        st.markdown('<div class="card-title" style="margin:12px 0 10px;">Meteorological Inputs</div>', unsafe_allow_html=True)
-        m1,m2,m3 = st.columns(3)
-        itemp=m1.number_input("Temp (°C)",  -30.0,45.0,  10.0,step=1.0)
-        ipres=m2.number_input("Pres (hPa)",  980.0,1040.0,1010.0,step=1.0)
-        idewp=m3.number_input("Dew Pt (°C)",-40.0,30.0,  -5.0,step=1.0)
-        m4,m5 = st.columns(2)
-        irain=m4.number_input("Rain (mm)",  0.0,100.0,0.0,step=0.5)
-        iwspm=m5.number_input("Wind (m/s)", 0.0,20.0, 2.0,step=0.5)
-        st.markdown('<div class="card-title" style="margin:12px 0 10px;">Temporal & Location</div>', unsafe_allow_html=True)
-        t1,t2 = st.columns(2)
-        ihr =t1.slider("Hour of Day",0,23,12)
-        imo =t2.slider("Month",      1,12, 6)
-        t3,t4 = st.columns(2)
-        istn=t3.selectbox("Station",sorted(df['station'].unique().tolist()))
-        isty=t4.selectbox("Station Type",['Urban','Suburban'])
-        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-        st.button("Generate PM2.5 Prediction →", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with R:
-        smapx={12:'Winter',1:'Winter',2:'Winter',3:'Spring',4:'Spring',5:'Spring',
-               6:'Summer',7:'Summer',8:'Summer',9:'Autumn',10:'Autumn',11:'Autumn'}
-        ise=smapx.get(imo,'Summer')
-        try: ste=le_station.transform([istn])[0]
-        except: ste=0
-        see={'Winter':3,'Spring':1,'Summer':2,'Autumn':0}.get(ise,0)
-        sye=1 if isty=='Urban' else 0
-        ia=np.array([[ipm10,iso2,ino2,ico,io3,itemp,ipres,idewp,irain,iwspm,ihr,imo,see,ste,sye]])
-        pred=max(0,model.predict(scaler.transform(ia))[0])
-        cat_name,cat_cls,cat_col=classify_aqi(pred)
-        who_diff=pred-15; bar_fill=min(int(pred/300*100),100)
-        bar_col='#f87171' if pred>75 else '#4ade80'
-
-        st.markdown(f"""<div class="pred-card">
-            <div class="pred-label">Predicted PM2.5</div>
-            <div class="pred-value">{pred:.1f}</div>
-            <div class="pred-unit">µg/m³ &nbsp;·&nbsp; {ise} &nbsp;·&nbsp; {istn}</div>
-            <div style='margin-bottom:14px;'><span class="pred-badge {cat_cls}">{cat_name}</span></div>
-            <div class="who-label">
-                <span style='color:#78756e;'>vs WHO Guideline (15 µg/m³)</span>
-                <span style='color:{"#c0392b" if who_diff>0 else "#1a7a4a"};font-family:DM Mono;font-weight:600;'>
-                    {"+"+str(round(who_diff,1)) if who_diff>0 else str(round(who_diff,1))} µg/m³
-                </span>
-            </div>
-            <div class="who-bar-bg"><div class="who-bar-fill" style="width:{bar_fill}%;background:{bar_col};"></div></div>
-            <div style='font-size:0.75rem;color:#78756e;text-align:left;font-style:italic;line-height:1.7;margin-bottom:16px;'>
-                {"⚠️ Above WHO guidelines - sensitive groups should reduce outdoor exposure." if pred>75 else "✅ Within acceptable WHO PM2.5 guidelines for this period."}
-            </div>
-        </div>""", unsafe_allow_html=True)
-
-        st.markdown(f"""<div class="card" style="margin-top:14px;">
-            <div class="card-title" style="margin-bottom:12px;">Model Confidence</div>
-            <div class="conf-row"><span class="conf-lbl">R² Score</span><span class="conf-val">{rf_r2:.4f}</span></div>
-            <div class="conf-row"><span class="conf-lbl">MAE</span><span class="conf-val">{rf_mae:.2f} µg/m³</span></div>
-            <div class="conf-row"><span class="conf-lbl">RMSE</span><span class="conf-val">{rf_rmse:.2f} µg/m³</span></div>
-            <div class="conf-row" style='border:none;'><span class="conf-lbl">Training Records</span><span class="conf-val">{int(len(df)*0.8):,}</span></div>
-        </div>""", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════
-# DATA RELATIONSHIPS
-# ══════════════════════════════════════════════════════════════
-elif page == "📐  Data Relationships":
-    st.markdown('<div class="pg-eyebrow">Statistical Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">Data Relationships</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-sub">Pairwise scatter matrix, full correlation analysis and variable deep dive explorer.</div>', unsafe_allow_html=True)
-
-    tab1,tab2,tab3 = st.tabs(["🔲 Scatter Matrix","🌡️ Full Correlation","📊 Variable Deep Dive"])
-
-    with tab1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Pairwise Scatter Matrix</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">Select variables to compare simultaneously - coloured by station type</div>', unsafe_allow_html=True)
-        num_cols=[c for c in ['PM2.5','PM10','NO2','CO','TEMP','WSPM','O3'] if c in df.columns]
-        sel_cols=st.multiselect("Select variables (2-6 recommended)",num_cols,default=['PM2.5','PM10','TEMP','WSPM'])
-        if len(sel_cols) >= 2:
-            _sm_cols = sel_cols + (['station_type'] if 'station_type' in df.columns else [])
-            samp=df[_sm_cols].dropna().sample(min(2500,len(df)),random_state=42)
-            _sm_color = 'station_type' if 'station_type' in df.columns else None
-            _sm_ckw = dict(color_discrete_map={'Urban':GOLD,'Suburban':GOLD2}) if _sm_color else {}
-            fig_sm=px.scatter_matrix(samp,dimensions=sel_cols,color=_sm_color,
-                                     **_sm_ckw,
-                                     opacity=0.35,height=560)
-            fig_sm.update_traces(marker=dict(size=3,line=dict(width=0)))
-            ap(fig_sm, {'showlegend':True,
-                        'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_sm,use_container_width=True)
-        else:
-            st.info("Select at least 2 variables to display the scatter matrix.")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with tab2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Full Correlation Matrix</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">Pearson r between all numeric features - warm = positive correlation</div>', unsafe_allow_html=True)
-        all_num=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM','hour','month'] if c in df.columns]
-        corr_full=df[all_num].corr().round(2)
-        fig_cf=px.imshow(corr_full,
-                          color_continuous_scale=['#dcfce7','#fef9c3','#fef3dc','#fde68a','#f5a623'],
-                          zmin=-1,zmax=1,text_auto=True,height=520)
-        # FIX: use 'title' not 'titlefont' in coloraxis_colorbar
-        ap(fig_cf, {'coloraxis_showscale':True,
-                    'coloraxis_colorbar':dict(
-                        tickfont=dict(color='#78756e'),
-                        title=dict(text='r', font=dict(color='#78756e'))
-                    )})
-        fig_cf.update_traces(textfont=dict(color='#1a1a18',size=9))
-        st.plotly_chart(fig_cf,use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        pm25_corr=corr_full['PM2.5'].drop('PM2.5').sort_values(key=abs,ascending=False)
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">PM2.5 Correlation Ranking</div>', unsafe_allow_html=True)
-        for feat,corr_val in pm25_corr.items():
-            col_c=GOLD if corr_val>0 else '#f87171'
-            pct=int(abs(corr_val)*100)
-            st.markdown(f"""<div class="dist-row">
-                <span class="dist-name">{feat}</span>
-                <div class="dist-bar-bg"><div class="dist-bar" style="width:{pct}%;background:{col_c};"></div></div>
-                <span class="dist-val" style='color:{col_c};'>{corr_val:+.2f}</span>
-            </div>""", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with tab3:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">Variable Deep Dive</div>', unsafe_allow_html=True)
-        sel_var=st.selectbox("Select variable",[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','WSPM'] if c in df.columns])
-        v1,v2=st.columns(2)
-        with v1:
-            _vb_color = 'station_type' if 'station_type' in df.columns else None
-            _vb_ckw = dict(color_discrete_map={'Urban':GOLD,'Suburban':GOLD2}) if _vb_color else {}
-            fig_vbox=px.box(df,x='season',y=sel_var,color=_vb_color,height=280,
-                            category_orders={'season':['Winter','Spring','Summer','Autumn']},
-                            labels={sel_var:f'{sel_var} (µg/m³)'},**_vb_ckw)
-            ap(fig_vbox, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_vbox,use_container_width=True)
-        with v2:
-            hourly_v=df.groupby('hour')[sel_var].mean().reset_index()
-            fig_vh=px.area(hourly_v,x='hour',y=sel_var,height=280,color_discrete_sequence=[GOLD])
-            fig_vh.update_traces(fillcolor='rgba(201,135,10,0.1)',line_width=2)
-            ap(fig_vh); st.plotly_chart(fig_vh,use_container_width=True)
-        stats_s=df[sel_var].describe().round(2)
-        s1,s2,s3,s4=st.columns(4)
-        for col_s,lbl_s,val_s in [
-            (s1,'Mean',      f"{stats_s['mean']:.2f}"),
-            (s2,'Std Dev',   f"{stats_s['std']:.2f}"),
-            (s3,'Min',       f"{stats_s['min']:.2f}"),
-            (s4,'Max',       f"{stats_s['max']:.2f}")
+    with tab_perf:
+        c1,c2,c3=st.columns(3)
+        for col,lbl,val,note,nc in [
+            (c1,"R² Score",      f"{rf_r2:.4f}", f"↗ +{rf_r2-lr_r2:.4f} vs Linear Regression","eco-metric-note-g"),
+            (c2,"Mean Abs Error",f"{rf_mae:.2f}",f"µg/m³  ·  {lr_mae-rf_mae:.2f} improvement","eco-metric-note"),
+            (c3,"Root MSE",      f"{rf_rmse:.2f}","µg/m³ — driven by extreme events","eco-metric-note-r"),
         ]:
-            col_s.markdown(f'<div class="stat-card"><div class="stat-label">{lbl_s}</div><div class="stat-value" style="font-size:1.5rem;">{val_s}</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            with col:
+                st.markdown(f"""<div class="eco-metric">
+                    <div class="eco-metric-label">{lbl}</div>
+                    <div class="eco-metric-value">{val}</div>
+                    <div class="eco-metric-note {nc}">{note}</div>
+                </div>""", unsafe_allow_html=True)
+
+        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+        L,R=st.columns([1.7,1])
+        with L:
+            ta,tb,tc=st.tabs(["  🎯  Actual vs Predicted  ","  📊  Model Comparison  ","  📉  Residuals  "])
+            with ta:
+                yta=np.array(y_test); res=yta-y_pred
+                idx=np.random.choice(len(yta),size=min(3000,len(yta)),replace=False)
+                avdf=pd.DataFrame({'Actual':yta[idx],'Predicted':y_pred[idx],'Residual':res[idx]})
+                fig_av=px.scatter(avdf,x='Actual',y='Predicted',color='Residual',color_continuous_scale=[RED,'#fef9c3',TEAL],opacity=0.45,height=340)
+                mv=max(avdf['Actual'].max(),avdf['Predicted'].max())
+                fig_av.add_trace(go.Scatter(x=[0,mv],y=[0,mv],mode='lines',name='Perfect',line=dict(color=TEAL,dash='dash',width=1.5)))
+                ap(fig_av, {'coloraxis_showscale':False,'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+                st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-bullseye"></i>Actual vs Predicted PM2.5</div></div>""", unsafe_allow_html=True)
+                st.plotly_chart(fig_av, use_container_width=True)
+            with tb:
+                cd=pd.DataFrame({'Model':['Linear Regression','Random Forest'],'MAE':[lr_mae,rf_mae],'RMSE':[lr_rmse,rf_rmse],'R²':[lr_r2,rf_r2]})
+                fig_co=px.bar(pd.melt(cd,id_vars='Model',var_name='Metric',value_name='Value'),x='Metric',y='Value',color='Model',barmode='group',height=300,color_discrete_map={'Linear Regression':'#334155','Random Forest':TEAL})
+                ap(fig_co, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+                st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-scale-balanced"></i>Model Comparison</div></div>""", unsafe_allow_html=True)
+                st.plotly_chart(fig_co, use_container_width=True)
+                st.dataframe(cd, use_container_width=True, hide_index=True)
+            with tc:
+                fig_rd=px.histogram(avdf,x='Residual',nbins=60,color_discrete_sequence=[TEAL],height=280)
+                fig_rd.add_vline(x=0,line_dash='dash',line_color=RED,annotation_text='Zero (Perfect)')
+                fig_rd.add_vline(x=res.mean(),line_dash='dot',line_color=GREEN,annotation_text=f'Mean: {res.mean():.2f}')
+                ap(fig_rd)
+                st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-wave-square"></i>Residual Distribution</div><div class="eco-card-sub">Centred near zero confirms low bias</div></div>""", unsafe_allow_html=True)
+                st.plotly_chart(fig_rd, use_container_width=True)
+
+        with R:
+            fi=model.feature_importances_
+            fi_df=pd.DataFrame({'Feature':feature_cols,'Importance':fi}).sort_values('Importance',ascending=False)
+            mx=fi_df['Importance'].max()
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-ranking-star"></i>Feature Importance</div></div>""", unsafe_allow_html=True)
+            for _,row in fi_df.iterrows():
+                pct=int(row['Importance']/mx*100); dp=int(row['Importance']/fi.sum()*100)
+                st.markdown(f"""
+                <div class="eco-feat-row">
+                    <div class="eco-feat-top">
+                        <span class="eco-feat-name">{row['Feature']}</span>
+                        <span class="eco-feat-pct">{dp}%</span>
+                    </div>
+                    <div class="eco-feat-bg"><div class="eco-feat-fill" style="width:{pct}%;"></div></div>
+                </div>""", unsafe_allow_html=True)
+
+    with tab_pred:
+        L,R=st.columns([1.4,1])
+        with L:
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-flask"></i>Pollutant Inputs (µg/m³)</div></div>""", unsafe_allow_html=True)
+            p1,p2,p3=st.columns(3)
+            ipm10=p1.number_input("PM10",0.0,1000.0,80.0,step=5.0)
+            iso2 =p2.number_input("SO2", 0.0,500.0, 15.0,step=1.0)
+            ino2 =p3.number_input("NO2", 0.0,300.0, 50.0,step=1.0)
+            p4,p5=st.columns(2)
+            ico  =p4.number_input("CO",0.0,15000.0,900.0,step=50.0)
+            io3  =p5.number_input("O3",0.0,500.0,60.0,step=5.0)
+            st.markdown("""<div class="eco-card" style="margin-top:10px;"><div class="eco-card-title"><i class="fa-solid fa-cloud-sun"></i>Meteorological Inputs</div></div>""", unsafe_allow_html=True)
+            m1,m2,m3=st.columns(3)
+            itemp=m1.number_input("Temp (°C)",-30.0,45.0,10.0,step=1.0)
+            ipres=m2.number_input("Pres (hPa)",980.0,1040.0,1010.0,step=1.0)
+            idewp=m3.number_input("Dew Pt (°C)",-40.0,30.0,-5.0,step=1.0)
+            m4,m5=st.columns(2)
+            irain=m4.number_input("Rain (mm)",0.0,100.0,0.0,step=0.5)
+            iwspm=m5.number_input("Wind (m/s)",0.0,20.0,2.0,step=0.5)
+            st.markdown("""<div class="eco-card" style="margin-top:10px;"><div class="eco-card-title"><i class="fa-solid fa-map-pin"></i>Temporal & Location</div></div>""", unsafe_allow_html=True)
+            t1,t2=st.columns(2)
+            ihr=t1.slider("Hour of Day",0,23,12)
+            imo=t2.slider("Month",1,12,6)
+            t3,t4=st.columns(2)
+            istn=t3.selectbox("Station",sorted(df['station'].unique().tolist()))
+            isty=t4.selectbox("Station Type",['Urban','Suburban'])
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+            st.button("⚡  Generate PM2.5 Prediction", use_container_width=True)
+
+        with R:
+            smapx={12:'Winter',1:'Winter',2:'Winter',3:'Spring',4:'Spring',5:'Spring',6:'Summer',7:'Summer',8:'Summer',9:'Autumn',10:'Autumn',11:'Autumn'}
+            ise=smapx.get(imo,'Summer')
+            try: ste=le_station.transform([istn])[0]
+            except: ste=0
+            see={'Winter':3,'Spring':1,'Summer':2,'Autumn':0}.get(ise,0)
+            sye=1 if isty=='Urban' else 0
+            ia=np.array([[ipm10,iso2,ino2,ico,io3,itemp,ipres,idewp,irain,iwspm,ihr,imo,see,ste,sye]])
+            pred=max(0,model.predict(scaler.transform(ia))[0])
+            cat_name,cat_cls,cat_col=classify_aqi(pred)
+            who_diff=pred-15
+            bar_fill=min(int(pred/300*100),100)
+            bar_col=RED if pred>75 else AMBER if pred>35 else GREEN
+
+            radius=72; circ=2*3.14159*radius
+            gpct=min(pred/300,1.0); goff=circ*(1-gpct)
+            gcol=RED if pred>115 else AMBER if pred>35 else GREEN
+
+            st.markdown(f"""
+            <div class="eco-pred">
+                <div class="eco-pred-label"><i class="fa-solid fa-crosshairs"></i> Predicted PM2.5</div>
+                <svg width="180" height="180" viewBox="0 0 180 180" style="display:block;margin:0 auto 4px;">
+                    <circle cx="90" cy="90" r="{radius}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+                    <circle cx="90" cy="90" r="{radius}" fill="none" stroke="{gcol}" stroke-width="10"
+                            stroke-linecap="round" stroke-dasharray="{circ:.1f}"
+                            stroke-dashoffset="{goff:.1f}" transform="rotate(-90 90 90)"/>
+                    <text x="90" y="84" text-anchor="middle" font-family="DM Mono,monospace"
+                          font-size="26" font-weight="500" fill="{gcol}">{pred:.1f}</text>
+                    <text x="90" y="102" text-anchor="middle" font-family="Inter,sans-serif"
+                          font-size="11" fill="#64748b">µg/m³</text>
+                </svg>
+                <div class="eco-pred-unit">{ise} &nbsp;·&nbsp; {istn}</div>
+                <div style='margin-bottom:18px;'>
+                    <span class="eco-pred-badge {cat_cls}">{cat_name}</span>
+                </div>
+                <div class="eco-who-label">
+                    <span style='color:{MUTED};'>vs WHO (15 µg/m³)</span>
+                    <span style='color:{RED if who_diff>0 else GREEN};font-family:DM Mono;font-weight:600;'>
+                        {("+" if who_diff>0 else "")+str(round(who_diff,1))} µg/m³
+                    </span>
+                </div>
+                <div class="eco-who-bar-bg">
+                    <div class="eco-who-bar-fill" style="width:{bar_fill}%;background:{bar_col};"></div>
+                </div>
+                <div style='font-size:0.75rem;color:{MUTED};text-align:left;font-style:italic;line-height:1.7;margin-bottom:18px;'>
+                    {"⚠️ Above WHO guidelines — sensitive groups should reduce outdoor exposure." if pred>75
+                      else "✅ Within acceptable WHO PM2.5 guidelines for this period."}
+                </div>
+            </div>
+            <div class="eco-card" style="margin-top:14px;">
+                <div class="eco-card-title"><i class="fa-solid fa-shield-halved"></i>Model Confidence</div>
+                <div class="eco-conf-row"><span class="eco-conf-lbl">R² Score</span><span class="eco-conf-val">{rf_r2:.4f}</span></div>
+                <div class="eco-conf-row"><span class="eco-conf-lbl">MAE</span><span class="eco-conf-val">{rf_mae:.2f} µg/m³</span></div>
+                <div class="eco-conf-row"><span class="eco-conf-lbl">RMSE</span><span class="eco-conf-val">{rf_rmse:.2f} µg/m³</span></div>
+                <div class="eco-conf-row"><span class="eco-conf-lbl">Training Records</span><span class="eco-conf-val">{int(len(df)*0.8):,}</span></div>
+            </div>""", unsafe_allow_html=True)
+
+    with tab_rel:
+        rt1,rt2,rt3=st.tabs(["  🔲  Scatter Matrix  ","  🌡️  Full Correlation  ","  📊  Variable Deep Dive  "])
+        with rt1:
+            num_cols=[c for c in ['PM2.5','PM10','NO2','CO','TEMP','WSPM','O3'] if c in df.columns]
+            sel=st.multiselect("Select variables",num_cols,default=['PM2.5','PM10','TEMP','WSPM'])
+            if len(sel)>=2:
+                _sc=sel+(['station_type'] if 'station_type' in df.columns else [])
+                samp=df[_sc].dropna().sample(min(2500,len(df)),random_state=42)
+                _smc='station_type' if 'station_type' in df.columns else None
+                _smk=dict(color_discrete_map={'Urban':AMBER,'Suburban':BLUE}) if _smc else {}
+                fig_sm=px.scatter_matrix(samp,dimensions=sel,color=_smc,**_smk,opacity=0.35,height=540)
+                fig_sm.update_traces(marker=dict(size=3,line=dict(width=0)))
+                ap(fig_sm, {'showlegend':True,'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+                st.plotly_chart(fig_sm, use_container_width=True)
+            else: st.info("Select at least 2 variables.")
+
+        with rt2:
+            all_num=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM','hour','month'] if c in df.columns]
+            cf=df[all_num].corr().round(2)
+            fig_cf=px.imshow(cf,color_continuous_scale=['#1e3a5f','#0d6e64','#00b894',TEAL],zmin=-1,zmax=1,text_auto=True,height=500)
+            ap(fig_cf, {'coloraxis_showscale':True})
+            fig_cf.update_traces(textfont=dict(color='#f1f5f9',size=9))
+            st.plotly_chart(fig_cf, use_container_width=True)
+
+            pm_c=cf['PM2.5'].drop('PM2.5').sort_values(key=abs,ascending=False)
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-arrows-up-down"></i>PM2.5 Correlation Ranking</div></div>""", unsafe_allow_html=True)
+            for feat,cv in pm_c.items():
+                cc=TEAL if cv>0 else RED; pct=int(abs(cv)*100)
+                st.markdown(f"""<div class="eco-dist-row">
+                    <span class="eco-dist-name">{feat}</span>
+                    <div class="eco-dist-bar-bg"><div class="eco-dist-bar" style="width:{pct}%;background:{cc};"></div></div>
+                    <span class="eco-dist-val" style='color:{cc};'>{cv:+.2f}</span>
+                </div>""", unsafe_allow_html=True)
+
+        with rt3:
+            sv=st.selectbox("Select variable",[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','WSPM'] if c in df.columns])
+            v1,v2=st.columns(2)
+            with v1:
+                _vc='station_type' if 'station_type' in df.columns else None
+                _vk=dict(color_discrete_map={'Urban':AMBER,'Suburban':BLUE}) if _vc else {}
+                fig_vb=px.box(df,x='season',y=sv,color=_vc,height=280,category_orders={'season':['Winter','Spring','Summer','Autumn']},**_vk)
+                ap(fig_vb, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+                st.plotly_chart(fig_vb, use_container_width=True)
+            with v2:
+                hv=df.groupby('hour')[sv].mean().reset_index()
+                fig_vh=px.area(hv,x='hour',y=sv,height=280,color_discrete_sequence=[TEAL])
+                fig_vh.update_traces(fillcolor='rgba(0,212,170,0.07)',line_width=2); ap(fig_vh)
+                st.plotly_chart(fig_vh, use_container_width=True)
+            ss2=df[sv].describe().round(2)
+            s1,s2,s3,s4=st.columns(4)
+            for cs,ls,vs,vc in [(s1,'Mean',f"{ss2['mean']:.2f}",TEAL),(s2,'Std Dev',f"{ss2['std']:.2f}",MUTED),(s3,'Min',f"{ss2['min']:.2f}",GREEN),(s4,'Max',f"{ss2['max']:.2f}",RED)]:
+                cs.markdown(f"""<div class="eco-stat"><div class="eco-stat-label">{ls}</div><div class="eco-stat-value" style="font-size:1.5rem;color:{vc};">{vs}</div></div>""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# AQI HEALTH GUIDE
+# PAGE: REPORTS
 # ══════════════════════════════════════════════════════════════
-elif page == "📈  AQI Health Guide":
-    st.markdown('<div class="pg-eyebrow">Public Health Reference</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-title">AQI Health Guide</div>', unsafe_allow_html=True)
-    st.markdown('<div class="pg-sub">WHO PM2.5 standards, AQI category definitions and health recommendations - with live analysis of the current dataset.</div>', unsafe_allow_html=True)
+elif "Reports" in page or "\uf15c" in page:
+    st.markdown("""
+    <div class="pg-eyebrow"><i class="fa-solid fa-file-medical"></i>Public Health Reference</div>
+    <div class="pg-title">AQI Health Guide & Reports</div>
+    <div class="pg-sub">WHO PM2.5 standards, AQI category definitions, health recommendations and live exceedance analysis across all monitoring stations.</div>
+    """, unsafe_allow_html=True)
 
-    # ── AQI Category Reference Table ──
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">PM2.5 AQI Categories & Health Guidelines</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Based on Chinese AQI standards aligned with WHO PM2.5 guidelines</div>', unsafe_allow_html=True)
-    aqi_data = [
-        {"Category":"Good",                         "PM2.5 Range":"0 - 35 µg/m³",   "Colour":"🟢","Health Impact":"Air quality is satisfactory. Little or no risk.","Recommended Action":"No restrictions. Enjoy outdoor activities."},
-        {"Category":"Moderate",                     "PM2.5 Range":"36 - 75 µg/m³",  "Colour":"🟡","Health Impact":"Acceptable quality. Some pollutants may affect sensitive individuals.","Recommended Action":"Unusually sensitive people should consider reducing prolonged outdoor exertion."},
-        {"Category":"Unhealthy for Sensitive Groups","PM2.5 Range":"76 - 115 µg/m³", "Colour":"🟠","Health Impact":"Sensitive groups (elderly, children, asthma) may experience health effects.","Recommended Action":"Sensitive groups should limit prolonged outdoor exertion."},
-        {"Category":"Unhealthy",                    "PM2.5 Range":"116 - 150 µg/m³","Colour":"🔴","Health Impact":"Everyone may begin to experience health effects.","Recommended Action":"Everyone should reduce prolonged outdoor exertion. Sensitive groups should avoid it."},
-        {"Category":"Very Unhealthy",               "PM2.5 Range":"151 - 250 µg/m³","Colour":"🟣","Health Impact":"Health alert: everyone may experience more serious health effects.","Recommended Action":"Everyone should avoid prolonged outdoor exertion. Stay indoors when possible."},
-        {"Category":"Hazardous",                    "PM2.5 Range":"> 250 µg/m³",    "Colour":"⚫","Health Impact":"Health warnings of emergency conditions. Entire population affected.","Recommended Action":"Everyone should avoid all outdoor activity. Stay indoors with windows closed."},
+    st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-book-medical"></i>PM2.5 AQI Categories & Health Guidelines</div><div class="eco-card-sub">Based on Chinese AQI standards aligned with WHO PM2.5 guidelines</div></div>""", unsafe_allow_html=True)
+    aqi_data=[
+        {"Category":"Good","PM2.5 Range":"0–35 µg/m³","Level":"🟢","Health Impact":"Satisfactory air quality. Little or no risk.","Recommended Action":"No restrictions. Enjoy outdoor activities freely."},
+        {"Category":"Moderate","PM2.5 Range":"36–75 µg/m³","Level":"🟡","Health Impact":"Acceptable. May affect unusually sensitive individuals.","Recommended Action":"Sensitive people: consider reducing prolonged outdoor exertion."},
+        {"Category":"Unhealthy (SG)","PM2.5 Range":"76–115 µg/m³","Level":"🟠","Health Impact":"Elderly, children and asthma sufferers may experience effects.","Recommended Action":"Sensitive groups should limit prolonged outdoor exertion."},
+        {"Category":"Unhealthy","PM2.5 Range":"116–150 µg/m³","Level":"🔴","Health Impact":"Everyone may begin to experience health effects.","Recommended Action":"Reduce prolonged outdoor exertion. Sensitive groups avoid it."},
+        {"Category":"Very Unhealthy","PM2.5 Range":"151–250 µg/m³","Level":"🟣","Health Impact":"Health alert — everyone may experience serious effects.","Recommended Action":"Avoid prolonged outdoor exertion. Stay indoors when possible."},
+        {"Category":"Hazardous","PM2.5 Range":"> 250 µg/m³","Level":"⚫","Health Impact":"Emergency conditions. Entire population affected.","Recommended Action":"Avoid ALL outdoor activity. Stay indoors, windows closed."},
     ]
     st.dataframe(pd.DataFrame(aqi_data), use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-
-    # ── Dataset AQI stats ──
-    c1, c2 = st.columns(2)
+    c1,c2=st.columns(2)
     with c1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">AQI Category Counts in Dataset</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">How many hours fall into each health category</div>', unsafe_allow_html=True)
-        aqi_counts = df['aqi_category'].value_counts().reset_index()
-        aqi_counts.columns = ['Category','Hours']
-        aqi_counts['Percentage'] = (aqi_counts['Hours']/len(df)*100).round(1)
-        aqi_counts['Days Equivalent'] = (aqi_counts['Hours']/24).round(0).astype(int)
-        st.dataframe(aqi_counts, use_container_width=True, hide_index=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        ac=df['aqi_category'].value_counts().reset_index(); ac.columns=['Category','Hours']
+        ac['Percentage']=(ac['Hours']/len(df)*100).round(1)
+        ac['Days Equivalent']=(ac['Hours']/24).round(0).astype(int)
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-list-ol"></i>AQI Category Counts</div></div>""", unsafe_allow_html=True)
+        st.dataframe(ac, use_container_width=True, hide_index=True)
 
     with c2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">AQI Distribution by Season</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-sub">Proportion of unhealthy days across seasons</div>', unsafe_allow_html=True)
         if 'season' in df.columns:
-            seas_aqi = df.groupby(['season','aqi_category']).size().reset_index(name='count')
-            so = ['Winter','Spring','Summer','Autumn']
-            seas_aqi['season'] = pd.Categorical(seas_aqi['season'], categories=so, ordered=True)
-            fig_sa = px.bar(seas_aqi.sort_values('season'), x='season', y='count',
-                            color='aqi_category', barmode='stack', height=260,
-                            color_discrete_map=AQI_COL,
-                            labels={'count':'Hours','season':'Season','aqi_category':'AQI Category'})
-            ap(fig_sa, {'legend':dict(font=dict(color='#78756e',size=9),bgcolor='rgba(0,0,0,0)')})
-            st.plotly_chart(fig_sa, use_container_width=True)
-        else:
-            st.info("Season column not available in this dataset.")
-        st.markdown('</div>', unsafe_allow_html=True)
+            sa2=df.groupby(['season','aqi_category']).size().reset_index(name='count')
+            so=['Winter','Spring','Summer','Autumn']
+            sa2['season']=pd.Categorical(sa2['season'],categories=so,ordered=True)
+            fig_sa2=px.bar(sa2.sort_values('season'),x='season',y='count',color='aqi_category',barmode='stack',height=280,color_discrete_map=AQI_COL,labels={'count':'Hours','aqi_category':'AQI'})
+            ap(fig_sa2, {'legend':dict(font=dict(color=MUTED,size=9),bgcolor='rgba(0,0,0,0)')})
+            st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-snowflake"></i>AQI Distribution by Season</div></div>""", unsafe_allow_html=True)
+            st.plotly_chart(fig_sa2, use_container_width=True)
 
-    # ── WHO Exceedance Analysis ──
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">WHO Guideline Exceedance Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Proportion of hours exceeding WHO PM2.5 thresholds per station</div>', unsafe_allow_html=True)
-
-    who_thresholds = [15, 35, 75, 115, 150]
-    threshold_labels = ['15 µg/m³ (Annual)', '35 µg/m³ (Good)', '75 µg/m³ (Moderate)',
-                        '115 µg/m³ (USG)', '150 µg/m³ (Unhealthy)']
-    rows = []
-    for stn_name in df['station'].unique():
-        stn_df = df[df['station']==stn_name]['PM2.5'].dropna()
-        row = {'Station': stn_name}
-        for thr, lbl in zip(who_thresholds, threshold_labels):
-            row[lbl] = f"{(stn_df > thr).mean()*100:.1f}%"
-        rows.append(row)
+    # WHO Exceedance
+    st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-triangle-exclamation"></i>WHO Guideline Exceedance by Station</div></div>""", unsafe_allow_html=True)
+    thr=[15,35,75,115,150]; tlab=['15 µg/m³ (Annual)','35 µg/m³ (Good)','75 µg/m³ (Moderate)','115 µg/m³ (USG)','150 µg/m³ (Unhealthy)']
+    rows=[]
+    for sn in df['station'].unique():
+        sd=df[df['station']==sn]['PM2.5'].dropna()
+        r={'Station':sn}
+        for t,l in zip(thr,tlab): r[l]=f"{(sd>t).mean()*100:.1f}%"
+        rows.append(r)
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Worst pollution hours ──
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">Top 10 Worst Pollution Events</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Highest recorded PM2.5 hourly readings in the dataset</div>', unsafe_allow_html=True)
-    worst_cols = [c for c in ['year','month','day','hour','station','season','PM2.5','PM10','NO2','CO'] if c in df.columns]
-    worst = df.nlargest(10, 'PM2.5')[worst_cols].reset_index(drop=True)
-    worst.index += 1
-    st.dataframe(worst, use_container_width=True, hide_index=False)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Worst events
+    st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-skull-crossbones"></i>Top 10 Worst Pollution Events</div></div>""", unsafe_allow_html=True)
+    wc=[c for c in ['year','month','day','hour','station','season','PM2.5','PM10','NO2','CO'] if c in df.columns]
+    w=df.nlargest(10,'PM2.5')[wc].reset_index(drop=True); w.index+=1
+    st.dataframe(w, use_container_width=True, hide_index=False)
 
-    # ── PM2.5 Trend: annual mean per station ──
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">Annual Mean PM2.5 per Station</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Year-on-year trend - Year-on-year pollution trend from 2013 to 2017</div>', unsafe_allow_html=True)
+    # Annual trend
     if 'year' in df.columns:
-        annual = df.groupby(['year','station'])['PM2.5'].mean().reset_index()
-        fig_ann = px.line(annual, x='year', y='PM2.5', color='station',
-                          markers=True, height=280,
-                          color_discrete_sequence=[GOLD, GOLD2, '#60a5fa', '#a78bfa'],
-                          labels={'PM2.5':'Mean PM2.5 (µg/m³)','year':'Year'})
+        ann=df.groupby(['year','station'])['PM2.5'].mean().reset_index()
+        fig_ann=px.line(ann,x='year',y='PM2.5',color='station',markers=True,height=300,color_discrete_sequence=[TEAL,TEAL2,BLUE,'#8b5cf6'],labels={'PM2.5':'Mean PM2.5 (µg/m³)','year':'Year'})
         fig_ann.update_traces(line_width=2.5)
-        fig_ann.add_hline(y=15, line_dash='dot', line_color='#4ade80',
-                          annotation_text='WHO Annual Guideline: 15 µg/m³')
-        ap(fig_ann, {'legend':dict(font=dict(color='#78756e'),bgcolor='rgba(0,0,0,0)')})
+        fig_ann.add_hline(y=15,line_dash='dot',line_color=GREEN,annotation_text='WHO Annual: 15 µg/m³',annotation_font_color=GREEN)
+        ap(fig_ann, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
+        st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-arrow-trend-down"></i>Annual Mean PM2.5 per Station (2013–2017)</div></div>""", unsafe_allow_html=True)
         st.plotly_chart(fig_ann, use_container_width=True)
-    else:
-        st.info("Year column not available in this dataset.")
-    st.markdown('</div>', unsafe_allow_html=True)
+
+    avg_pm=df['PM2.5'].mean(); gp=(df['aqi_category']=='Good').mean()*100
+    st.markdown(f"""
+    <div class="eco-insight">
+        <div class="eco-insight-title"><i class="fa-solid fa-lightbulb"></i>Dataset Health Summary</div>
+        <div class="eco-insight-body">Annual mean PM2.5 of <b style="color:{RED};">{avg_pm:.1f} µg/m³</b> is
+        <b style="color:{RED};">{avg_pm/15:.1f}×</b> the WHO guideline. Only
+        <b style="color:{TEXT};">{gp:.1f}%</b> of readings meet WHO standards.
+        Urban stations (Dongsi, Guanyuan) consistently record higher PM2.5 than suburban sites.</div>
+    </div>""", unsafe_allow_html=True)
