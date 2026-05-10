@@ -140,7 +140,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"],
 .eco-hero {
     background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
     border: 1px solid var(--border2); border-radius: 18px;
-    padding: 50px 54px; margin-bottom: 24px; position: relative; overflow: hidden;
+    padding: 50px 54px 90px 54px; margin-bottom: 0px; position: relative; overflow: visible;
 }
 .eco-hero::before {
     content:''; position:absolute; right:-80px; top:-80px; width:420px; height:420px;
@@ -243,14 +243,72 @@ div[data-testid="stTabs"] [aria-selected="true"] { color:var(--teal) !important;
 .stSelectbox > div > div, .stMultiSelect > div > div { background:var(--bg-card) !important; border:1px solid var(--border2) !important; color:var(--text) !important; border-radius:8px !important; }
 .stNumberInput > div > div > input, input, textarea { background:var(--bg-card) !important; border:1px solid var(--border2) !important; color:var(--text) !important; border-radius:8px !important; }
 .stButton > button { background:linear-gradient(135deg, var(--teal2), var(--teal)) !important; color:#0a1628 !important; font-weight:700 !important; font-size:0.88rem !important; border:none !important; border-radius:9px !important; padding:12px 20px !important; width:100% !important; box-shadow:0 4px 20px rgba(0,212,170,0.2) !important; transition:opacity 0.2s, transform 0.2s !important; }
+/* New Analysis button in sidebar - outline style */
+[data-testid="stSidebar"] .stButton > button { background:transparent !important; color:#00d4aa !important; border:1px solid rgba(0,212,170,0.35) !important; box-shadow:none !important; font-weight:600 !important; }
+[data-testid="stSidebar"] .stButton > button:hover { background:rgba(0,212,170,0.08) !important; border-color:rgba(0,212,170,0.6) !important; }
 .stButton > button:hover { opacity:0.9 !important; transform:translateY(-1px) !important; }
 .stFileUploader { background:var(--bg-card) !important; border:1px dashed var(--border2) !important; border-radius:10px !important; }
+
+/* ── DARK FILE UPLOADER ── */
+[data-testid="stFileUploader"] {
+    background: transparent !important;
+}
+[data-testid="stFileUploader"] > div {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px dashed rgba(255,255,255,0.15) !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+}
+[data-testid="stFileUploader"] section {
+    background: #1a2332 !important;
+    border: 1px dashed rgba(0,212,170,0.3) !important;
+    border-radius: 10px !important;
+    padding: 20px 16px !important;
+}
+[data-testid="stFileUploader"] section > div {
+    background: transparent !important;
+}
+[data-testid="stFileUploader"] section p,
+[data-testid="stFileUploader"] section span,
+[data-testid="stFileUploader"] section small {
+    color: #64748b !important;
+}
+[data-testid="stFileUploadDropzone"] {
+    background: #1a2332 !important;
+    border: 1px dashed rgba(0,212,170,0.3) !important;
+    border-radius: 10px !important;
+}
+[data-testid="stFileUploadDropzone"] > div { background: transparent !important; }
+[data-testid="stFileUploadDropzone"] span { color: #64748b !important; }
+[data-testid="stFileUploadDropzone"] small { color: #475569 !important; }
+/* Browse files button inside uploader */
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploader"] button {
+    background: rgba(0,212,170,0.08) !important;
+    border: 1px solid rgba(0,212,170,0.3) !important;
+    color: #00d4aa !important;
+    border-radius: 7px !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    box-shadow: none !important;
+    width: auto !important;
+    padding: 6px 16px !important;
+}
+[data-testid="stFileUploadDropzone"] button:hover,
+[data-testid="stFileUploader"] button:hover {
+    background: rgba(0,212,170,0.16) !important;
+    border-color: rgba(0,212,170,0.5) !important;
+    transform: none !important;
+}
 .stExpander { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:10px !important; }
 
 thead tr th { background:rgba(255,255,255,0.04) !important; color:var(--teal) !important; font-size:0.65rem !important; font-weight:700 !important; letter-spacing:1.5px !important; text-transform:uppercase !important; border-bottom:1px solid var(--border2) !important; }
 tbody tr { background:var(--bg-card) !important; color:var(--text) !important; font-size:0.82rem !important; }
 tbody tr:nth-child(even) { background:var(--bg-card2) !important; }
 tbody tr:hover { background:rgba(0,212,170,0.04) !important; }
+
+/* ── DATAFRAME DARK THEME ── */
+[data-testid="stDataFrame"] { border:1px solid var(--border) !important; border-radius:10px !important; overflow:hidden !important; }
 
 #MainMenu, footer { visibility:hidden !important; }
 header { background:transparent !important; }
@@ -268,6 +326,8 @@ header { background:transparent !important; }
 .stSlider > div > div > div { background:var(--teal) !important; }
 </style>
 """, unsafe_allow_html=True)
+
+
 
 
 # ── HELPERS ──────────────────────────────────────────────────
@@ -303,6 +363,42 @@ def ap(fig, extra=None):
     if extra: kw.update(extra)
     fig.update_layout(**kw)
     return fig
+
+def dark_table(df_in, max_rows=None, height=None):
+    """Render a DataFrame as a styled dark HTML table."""
+    d = df_in.copy()
+    if max_rows:
+        d = d.head(max_rows)
+    d = d.reset_index(drop=True)
+
+    header_cells = "".join(
+        f"<th style='background:#0f172a;color:#00d4aa;font-size:0.65rem;font-weight:700;"
+        f"letter-spacing:1.5px;text-transform:uppercase;padding:10px 14px;"
+        f"border-bottom:1px solid rgba(255,255,255,0.12);white-space:nowrap;'>{col}</th>"
+        for col in d.columns
+    )
+
+    rows_html = ""
+    for i, row in d.iterrows():
+        bg = "#1f2937" if i % 2 == 0 else "#1a2332"
+        cells = "".join(
+            f"<td style='padding:8px 14px;color:#f1f5f9;font-size:0.82rem;"
+            f"border-bottom:1px solid rgba(255,255,255,0.05);'>{val}</td>"
+            for val in row.values
+        )
+        rows_html += f"<tr style='background:{bg};'>{cells}</tr>"
+
+    h_style = f"max-height:{height}px;overflow-y:auto;" if height else ""
+    html = f"""
+    <div style='border:1px solid rgba(255,255,255,0.08);border-radius:10px;
+                overflow:hidden;margin-bottom:14px;{h_style}'>
+      <table style='width:100%;border-collapse:collapse;background:#1f2937;'>
+        <thead><tr>{header_cells}</tr></thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+    </div>"""
+    st.markdown(html, unsafe_allow_html=True)
+
 
 def prepare(df):
     df = df.copy()
@@ -374,25 +470,35 @@ with st.sidebar:
                 <i class="fa-solid fa-leaf" style="color:#00d4aa;font-size:15px;"></i>
             </div>
             <div>
-                <div style='font-size:0.95rem;font-weight:700;color:#f1f5f9;'>EcoMonitor</div>
-                <div style='font-size:0.6rem;color:#64748b;letter-spacing:0.5px;'>Deep Science Analytics</div>
+                <div style='font-size:0.82rem;font-weight:700;color:#f1f5f9;line-height:1.3;'>Kunalan Subatharan</div>
+                <div style='font-size:0.58rem;color:#00d4aa;letter-spacing:0.5px;font-weight:600;'>ST20274714 · Cardiff Met</div>
             </div>
         </div>
     </div>""", unsafe_allow_html=True)
 
-    page = st.radio("nav", [
-        "\uf015  Overview",
-        "\uf093  Data Upload",
-        "\uf0ce  Dataset",
-        "\uf201  Visualisation",
-        "\uf544  Analytics",
-        "\uf15c  Reports",
-    ], label_visibility="collapsed")
+    NAV_PAGES = [
+        "🏠  Overview",
+        "📤  Data Upload",
+        "📋  Dataset",
+        "📊  Visualisation",
+        "🤖  Analytics",
+        "📄  Reports",
+    ]
+    if 'nav_page' not in st.session_state:
+        st.session_state.nav_page = "🏠  Overview"
+
+    page = st.radio("nav", NAV_PAGES,
+        index=NAV_PAGES.index(st.session_state.nav_page),
+        label_visibility="collapsed")
+
+    # Always keep session state in sync with what user clicked
+    if page != st.session_state.nav_page:
+        st.session_state.nav_page = page
 
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     st.markdown("""<div style='font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
                             color:#475569;margin:8px 4px 8px;'>
-        <i class="fa-solid fa-database" style="margin-right:5px;color:#64748b;"></i>Dataset Source
+        🗄️ Dataset Source
     </div>""", unsafe_allow_html=True)
 
     uploaded = st.file_uploader("Upload CSV", type=["csv"], label_visibility="collapsed")
@@ -412,7 +518,7 @@ with st.sidebar:
                 border-radius:10px;padding:14px 16px;'>
         <div style='font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
                     color:#475569;margin-bottom:10px;display:flex;align-items:center;gap:5px;'>
-            <i class="fa-solid fa-circle-info" style="color:#64748b;"></i>Live Summary
+            ℹ️ Live Summary
         </div>
         <div style='font-size:0.75rem;line-height:2.5;'>
             <div style='display:flex;justify-content:space-between;'>
@@ -443,41 +549,37 @@ with st.sidebar:
         <div style='font-size:0.65rem;color:#475569;'>CMP7005 · Cardiff Met</div>
     </div>
     <div style='margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);'>
-        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;margin-bottom:8px;cursor:pointer;'>
-            <i class="fa-solid fa-gear" style="width:14px;"></i><span>Settings</span>
+        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;margin-bottom:8px;'>
+            ⚙️ <span>Settings</span>
         </div>
-        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;cursor:pointer;'>
-            <i class="fa-solid fa-circle-question" style="width:14px;"></i><span>Support</span>
+        <div style='display:flex;align-items:center;gap:8px;font-size:0.74rem;color:#475569;'>
+            ❓ <span>Support</span>
         </div>
     </div>
-    <div style='margin-top:16px;'>
-        <button onclick='' style='width:100%;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);
-                border-radius:8px;padding:9px;font-size:0.78rem;color:#00d4aa;cursor:pointer;
-                display:flex;align-items:center;justify-content:center;gap:7px;'>
-            <i class="fa-solid fa-plus"></i> New Analysis
-        </button>
     </div>""", unsafe_allow_html=True)
+
+    # ── New Analysis button (real Streamlit button - works reliably) ──
+    st.markdown("<div style='margin-top:8px'></div>", unsafe_allow_html=True)
+    if st.button("＋  New Analysis", use_container_width=True):
+        st.session_state.nav_page = "🏠  Overview"
+        st.rerun()
 
 
 # ── TOPBAR ───────────────────────────────────────────────────
 st.markdown(f"""
 <div class="eco-topbar">
     <div class="eco-brand">
-        <i class="fa-solid fa-leaf" style="color:var(--teal);"></i>
+        🌿
         Environmental <span class="brand-accent">Dashboard</span>
     </div>
     <div class="eco-topbar-right">
-        <div class="eco-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Search data points...</span>
-        </div>
         <div class="eco-status">
             <div class="eco-status-dot"></div>
             SYSTEM ONLINE
         </div>
-        <div class="eco-icon-btn"><i class="fa-regular fa-bell"></i></div>
-        <div class="eco-icon-btn"><i class="fa-solid fa-gear"></i></div>
-        <div class="eco-avatar">U</div>
+        <div class="eco-icon-btn">🔔</div>
+        <div class="eco-icon-btn">⚙️</div>
+        <div class="eco-avatar">KS</div>
     </div>
 </div>""", unsafe_allow_html=True)
 
@@ -485,15 +587,14 @@ st.markdown(f"""
 # ══════════════════════════════════════════════════════════════
 # PAGE: OVERVIEW
 # ══════════════════════════════════════════════════════════════
-if "Overview" in page or "\uf015" in page:
+if "Overview" in page:
     avg_pm  = df['PM2.5'].mean()
     good_pct = (df['aqi_category']=='Good').mean()*100
 
     st.markdown(f"""
     <div class="eco-hero">
         <div class="eco-hero-eyebrow">
-            <i class="fa-solid fa-circle-dot"></i>
-            Beijing Multi-Site Air Quality Dataset &nbsp;·&nbsp; 2013-2017
+            ● Beijing Multi-Site Air Quality Dataset &nbsp;·&nbsp; 2013-2017
         </div>
         <div class="eco-hero-title">
             Air Quality <span class="ht-accent">Intelligence</span><br>Analytics Platform
@@ -503,9 +604,72 @@ if "Overview" in page or "\uf015" in page:
             exploratory data analysis with machine learning prediction to track environmental
             health trends and mitigation efficacy.
         </div>
-        <span class="eco-btn"><i class="fa-solid fa-arrow-right"></i>Explore Dataset</span>
-        <span class="eco-btn-ghost"><i class="fa-solid fa-brain"></i>View Model</span>
+        <div style="margin-top:32px;"></div>
     </div>""", unsafe_allow_html=True)
+
+    # Buttons visually pulled UP into the hero box via negative margin
+    st.markdown("""
+    <style>
+    div[data-testid="stHorizontalBlock"]:has(> div > div[data-testid="stVerticalBlockBorderWrapper"] .hero-btn-row) {
+        margin-top: -80px !important; position: relative; z-index: 10; padding: 0 54px;
+    }
+    /* Style the two hero buttons */
+    .hero-btn-wrap { display:flex; gap:14px; margin-top:-72px; padding:0 54px 0 54px;
+                     position:relative; z-index:10; margin-bottom:24px; }
+    </style>
+    <div class="hero-btn-wrap" id="hero-btn-placeholder"></div>
+    """, unsafe_allow_html=True)
+
+    # Pull buttons up with negative margin CSS targeting their container
+    st.markdown("""<style>
+    /* Target the columns row that contains btn_explore / btn_model */
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"]) {
+        margin-top: -82px !important;
+        padding-left: 54px !important;
+        padding-right: 54px !important;
+        position: relative !important;
+        z-index: 20 !important;
+        margin-bottom: 20px !important;
+    }
+    /* Explore Dataset — solid teal */
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+        div:nth-child(1) button {
+        background: #00d4aa !important;
+        color: #0a1628 !important;
+        border: none !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        padding: 12px 24px !important;
+        border-radius: 9px !important;
+    }
+    /* View Model — ghost style */
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+        div:nth-child(2) button {
+        background: transparent !important;
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        padding: 12px 24px !important;
+        border-radius: 9px !important;
+        box-shadow: none !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+        div:nth-child(2) button:hover {
+        background: rgba(255,255,255,0.08) !important;
+        border-color: rgba(255,255,255,0.4) !important;
+    }
+    </style>""", unsafe_allow_html=True)
+
+    _hc1, _hc2, _hc3 = st.columns([1.5, 1.5, 4])
+    with _hc1:
+        if st.button("→  Explore Dataset", key="btn_explore", use_container_width=True):
+            st.session_state.nav_page = "📋  Dataset"
+            st.rerun()
+    with _hc2:
+        if st.button("🤖  View Model", key="btn_model", use_container_width=True):
+            st.session_state.nav_page = "🤖  Analytics"
+            st.rerun()
 
     # Stat Cards
     c1,c2,c3,c4 = st.columns(4)
@@ -631,7 +795,7 @@ if "Overview" in page or "\uf015" in page:
 # ══════════════════════════════════════════════════════════════
 # PAGE: DATA UPLOAD
 # ══════════════════════════════════════════════════════════════
-elif "Data Upload" in page or "Upload" in page or "\uf093" in page:
+elif "Data Upload" in page or "Upload" in page:
     st.markdown("""
     <div class="pg-eyebrow"><i class="fa-solid fa-folder-open"></i>Archive Management</div>
     <div class="pg-title">Import Dataset</div>
@@ -693,18 +857,18 @@ elif "Data Upload" in page or "Upload" in page or "\uf093" in page:
 
     st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-table"></i>Data Preview — Top 10 Rows</div></div>""", unsafe_allow_html=True)
     dcols = [c for c in ['year','month','day','hour','station','station_type','season','PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in df.columns]
-    st.dataframe(df[dcols].head(10), use_container_width=True, hide_index=True)
+    dark_table(df[dcols], max_rows=10)
 
     st.markdown("""<div class="eco-card" style="margin-top:14px;"><div class="eco-card-title"><i class="fa-solid fa-list-check"></i>Column Validation</div></div>""", unsafe_allow_html=True)
     req=['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM','hour','month','station','season','station_type']
     vrows=[{'Column':c,'Present':'✅' if c in df.columns else '❌','Missing Values':int(df[c].isnull().sum()) if c in df.columns else 'N/A','Type':str(df[c].dtype) if c in df.columns else '-','Example':str(df[c].dropna().iloc[0]) if c in df.columns and len(df[c].dropna())>0 else '-'} for c in req]
-    st.dataframe(pd.DataFrame(vrows), use_container_width=True, hide_index=True)
+    dark_table(pd.DataFrame(vrows))
 
 
 # ══════════════════════════════════════════════════════════════
 # PAGE: DATASET
 # ══════════════════════════════════════════════════════════════
-elif "Dataset" in page or "\uf0ce" in page:
+elif "Dataset" in page:
     st.markdown("""
     <div class="pg-eyebrow"><i class="fa-solid fa-microchip"></i>Data Intelligence</div>
     <div class="pg-title">Dataset Overview</div>
@@ -740,13 +904,13 @@ elif "Dataset" in page or "\uf0ce" in page:
     with R:
         sr=[{'Column':c,'Type':str(df[c].dtype),'Example':str(df[c].dropna().iloc[0]) if len(df[c].dropna())>0 else '-','Status':'✅'} for c in df.columns[:16]]
         st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-code"></i>Schema</div></div>""", unsafe_allow_html=True)
-        st.dataframe(pd.DataFrame(sr), use_container_width=True, height=255, hide_index=True)
+        dark_table(pd.DataFrame(sr), height=255)
 
     st.markdown("""<div class="eco-card" style="margin-top:4px;"><div class="eco-card-title"><i class="fa-solid fa-calculator"></i>Statistical Summary</div></div>""", unsafe_allow_html=True)
     nc=[c for c in ['PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in df.columns]
     sm=df[nc].describe().T.round(2)[['count','mean','std','min','25%','50%','75%','max']]
     sm.columns=['Count','Mean','Std Dev','Min','25%','50%','75%','Max']; sm.index.name='Feature'
-    st.dataframe(sm.reset_index(), use_container_width=True, hide_index=True)
+    dark_table(sm.reset_index())
 
     st.markdown(f"""
     <div class="eco-insight">
@@ -765,13 +929,13 @@ elif "Dataset" in page or "\uf0ce" in page:
     if sy!='All': dff=dff[dff['year']==int(sy)]
     st.caption(f"{len(dff):,} records after filters")
     dcols=[c for c in ['year','month','day','hour','station','station_type','season','PM2.5','PM10','SO2','NO2','CO','O3','TEMP','PRES','DEWP','RAIN','WSPM'] if c in dff.columns]
-    st.dataframe(dff[dcols].head(500), use_container_width=True, height=300, hide_index=True)
+    dark_table(dff[dcols], max_rows=500, height=300)
 
 
 # ══════════════════════════════════════════════════════════════
 # PAGE: VISUALISATION
 # ══════════════════════════════════════════════════════════════
-elif "Visualisation" in page or "\uf201" in page:
+elif "Visualisation" in page:
     st.markdown("""
     <div class="pg-eyebrow"><i class="fa-solid fa-eye"></i>Visual Analysis</div>
     <div class="pg-title">Air Quality Analytics</div>
@@ -881,7 +1045,7 @@ elif "Visualisation" in page or "\uf201" in page:
 # ══════════════════════════════════════════════════════════════
 # PAGE: ANALYTICS (Model + Predictor + Relationships)
 # ══════════════════════════════════════════════════════════════
-elif "Analytics" in page or "\uf544" in page:
+elif "Analytics" in page:
     st.markdown("""
     <div class="pg-eyebrow"><i class="fa-solid fa-robot"></i>Machine Learning</div>
     <div class="pg-title">Model Analytics</div>
@@ -924,7 +1088,7 @@ elif "Analytics" in page or "\uf544" in page:
                 ap(fig_co, {'legend':dict(font=dict(color=MUTED),bgcolor='rgba(0,0,0,0)')})
                 st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-scale-balanced"></i>Model Comparison</div></div>""", unsafe_allow_html=True)
                 st.plotly_chart(fig_co, use_container_width=True)
-                st.dataframe(cd, use_container_width=True, hide_index=True)
+                dark_table(cd)
             with tc:
                 fig_rd=px.histogram(avdf,x='Residual',nbins=60,color_discrete_sequence=[TEAL],height=280)
                 fig_rd.add_vline(x=0,line_dash='dash',line_color=RED,annotation_text='Zero (Perfect)')
@@ -1092,7 +1256,7 @@ elif "Analytics" in page or "\uf544" in page:
 # ══════════════════════════════════════════════════════════════
 # PAGE: REPORTS
 # ══════════════════════════════════════════════════════════════
-elif "Reports" in page or "\uf15c" in page:
+elif "Reports" in page:
     st.markdown("""
     <div class="pg-eyebrow"><i class="fa-solid fa-file-medical"></i>Public Health Reference</div>
     <div class="pg-title">AQI Health Guide & Reports</div>
@@ -1108,7 +1272,7 @@ elif "Reports" in page or "\uf15c" in page:
         {"Category":"Very Unhealthy","PM2.5 Range":"151–250 µg/m³","Level":"🟣","Health Impact":"Health alert — everyone may experience serious effects.","Recommended Action":"Avoid prolonged outdoor exertion. Stay indoors when possible."},
         {"Category":"Hazardous","PM2.5 Range":"> 250 µg/m³","Level":"⚫","Health Impact":"Emergency conditions. Entire population affected.","Recommended Action":"Avoid ALL outdoor activity. Stay indoors, windows closed."},
     ]
-    st.dataframe(pd.DataFrame(aqi_data), use_container_width=True, hide_index=True)
+    dark_table(pd.DataFrame(aqi_data))
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
     c1,c2=st.columns(2)
@@ -1117,7 +1281,7 @@ elif "Reports" in page or "\uf15c" in page:
         ac['Percentage']=(ac['Hours']/len(df)*100).round(1)
         ac['Days Equivalent']=(ac['Hours']/24).round(0).astype(int)
         st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-list-ol"></i>AQI Category Counts</div></div>""", unsafe_allow_html=True)
-        st.dataframe(ac, use_container_width=True, hide_index=True)
+        dark_table(ac)
 
     with c2:
         if 'season' in df.columns:
@@ -1138,13 +1302,13 @@ elif "Reports" in page or "\uf15c" in page:
         r={'Station':sn}
         for t,l in zip(thr,tlab): r[l]=f"{(sd>t).mean()*100:.1f}%"
         rows.append(r)
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    dark_table(pd.DataFrame(rows))
 
     # Worst events
     st.markdown("""<div class="eco-card"><div class="eco-card-title"><i class="fa-solid fa-skull-crossbones"></i>Top 10 Worst Pollution Events</div></div>""", unsafe_allow_html=True)
     wc=[c for c in ['year','month','day','hour','station','season','PM2.5','PM10','NO2','CO'] if c in df.columns]
     w=df.nlargest(10,'PM2.5')[wc].reset_index(drop=True); w.index+=1
-    st.dataframe(w, use_container_width=True, hide_index=False)
+    dark_table(w)
 
     # Annual trend
     if 'year' in df.columns:
